@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { auth, db } from './firebase/config';
 import { signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "firebase/auth";
-import { styles } from './styles';
+import './App.css';
 
 function App() {
   const [user, setUser] = useState(null);
@@ -14,10 +14,10 @@ function App() {
 
   if (!user) {
     return (
-      <div style={styles.loginPage}>
-        <h1 style={styles.logo}>Fantasy Gym League</h1>
-        <p style={{color: '#888', marginBottom: '20px'}}>Compite. Entrena. Gana.</p>
-        <button onClick={() => signInWithPopup(auth, new GoogleAuthProvider())} style={styles.loginBtn}>
+      <div className="login-page">
+        <img src="logo.png" alt="Fantasy Gym League" className="logo-img" />
+        <p className="login-page-subtitle">Compite. Entrena. Gana.</p>
+        <button onClick={() => signInWithPopup(auth, new GoogleAuthProvider())} className="login-btn">
           Continuar con Google
         </button>
       </div>
@@ -25,78 +25,78 @@ function App() {
   }
 
   return (
-    <div style={styles.container}>
+    <div className="app-container">
       {/* SIDEBAR ESTILO FGL */}
-      <nav style={styles.sidebar}>
-        <h2 style={styles.sidebarLogo}>FGL</h2>
+      <nav className="sidebar">
+        <img src="/logo.png" alt="FGL Logo" className="sidebar-logo-img" />
         
-        <div style={styles.menu}>
-          <button onClick={() => setActiveTab('entrenar')} style={activeTab === 'entrenar' ? styles.activeMenuBtn : styles.menuBtn}>
+        <div className="menu">
+          <button onClick={() => setActiveTab('entrenar')} className={`menu-btn ${activeTab === 'entrenar' ? 'active' : ''}`}>
             Entrenar
           </button>
-          <button onClick={() => setActiveTab('ligas')} style={activeTab === 'ligas' ? styles.activeMenuBtn : styles.menuBtn}>
+          <button onClick={() => setActiveTab('ligas')} className={`menu-btn ${activeTab === 'ligas' ? 'active' : ''}`}>
             Ligas Fantasy
           </button>
-          <button style={styles.menuBtn}>
+          <button className="menu-btn">
             Perfil
           </button>
         </div>
 
-        <div style={styles.userSection}>
-          <img src={user.photoURL} alt="profile" style={styles.avatar} />
-          <div style={{marginLeft: '10px'}}>
-            <p style={{fontSize: '14px', fontWeight: 'bold', margin: 0}}>{user.displayName}</p>
-            <button onClick={() => signOut(auth)} style={styles.logoutBtn}>Cerrar sesión</button>
+        <div className="user-section">
+          <img src={user.photoURL} alt="profile" className="user-avatar" />
+          <div className="user-info">
+            <p className="user-name">{user.displayName}</p>
+            <button onClick={() => signOut(auth)} className="logout-btn">Cerrar sesión</button>
           </div>
         </div>
       </nav>
 
       {/* CONTENIDO PRINCIPAL */}
-      <main style={styles.main}>
-        <header style={styles.header}>
-          <h1 style={{fontSize: '24px'}}>{activeTab === 'entrenar' ? 'Registro de Hoy' : 'Global Rankings'}</h1>
-          <div style={styles.pointsBadge}>1,240 XP</div>
+      <main className="main-content">
+        <header className="header">
+          <h1>{activeTab === 'entrenar' ? 'Registro de Hoy' : 'Global Rankings'}</h1>
+          <div className="points-badge">1,240 XP</div>
         </header>
 
         {activeTab === 'entrenar' ? (
-          <div style={styles.content}>
-            <div style={styles.workoutCard}>
-              <h3 style={{color: '#d7ff00', marginBottom: '15px'}}>Nueva Sesión</h3>
-              <label style={styles.label}>EJERCICIO</label>
-              <select style={styles.select}>
+          <div className="content">
+            <div className="workout-card">
+              <h3 className="card-title">Nueva Sesión</h3>
+              <label className="label">EJERCICIO</label>
+              <select className="select">
                 <option>Press de Banca</option>
                 <option>Sentadilla Libre</option>
                 <option>Dominadas</option>
               </select>
               
-              <div style={styles.statsRow}>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>PESO (KG)</label>
-                  <input type="number" placeholder="0" style={styles.input} />
+              <div className="stats-row">
+                <div className="input-group">
+                  <label className="label">PESO (KG)</label>
+                  <input type="number" placeholder="0" className="input" />
                 </div>
-                <div style={styles.inputGroup}>
-                  <label style={styles.label}>REPES</label>
-                  <input type="number" placeholder="0" style={styles.input} />
+                <div className="input-group">
+                  <label className="label">REPES</label>
+                  <input type="number" placeholder="0" className="input" />
                 </div>
-                <button style={styles.addSetBtn}>+</button>
+                <button className="add-set-btn">+</button>
               </div>
 
-              <button style={styles.finishBtn}>FINALIZAR ENTRENAMIENTO</button>
+              <button className="finish-btn">FINALIZAR ENTRENAMIENTO</button>
             </div>
           </div>
         ) : (
-          <div style={styles.content}>
-            <div style={styles.workoutCard}>
-              <h3 style={{color: '#d7ff00'}}>Tus Ligas</h3>
-              <div style={styles.leagueItem}>
+          <div className="content">
+            <div className="workout-card">
+              <h3 className="card-title">Tus Ligas</h3>
+              <div className="league-item">
                 <span>1. Los Primos Gym</span>
-                <span style={{color: '#d7ff00'}}>+450 pts</span>
+                <span className="league-item-highlight">+450 pts</span>
               </div>
-              <div style={styles.leagueItem}>
+              <div className="league-item">
                 <span>2. Warriors League</span>
-                <span style={{color: '#888'}}>+320 pts</span>
+                <span className="league-item-dim">+320 pts</span>
               </div>
-              <button style={styles.createLeagueBtn}>CREAR NUEVA LIGA</button>
+              <button className="create-league-btn">CREAR NUEVA LIGA</button>
             </div>
           </div>
         )}

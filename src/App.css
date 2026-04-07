@@ -1,38 +1,284 @@
-.App {
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", sans-serif;
+}
+
+/* ============= LAYOUT PRINCIPAL ============= */
+.app-container {
+  display: flex;
+  height: 100vh;
+  background-color: #1A5632;
+  color: #fff;
+}
+
+/* ============= SIDEBAR ============= */
+.sidebar {
+  width: 280px;
+  background-color: #143f25;
+  padding: 30px 20px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #0f3321;
+}
+
+.sidebar-logo {
+  font-size: 22px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  margin-bottom: 40px;
   text-align: center;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+.menu {
+  flex-grow: 1;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+.menu-btn {
+  width: 100%;
+  padding: 14px;
+  background: none;
+  color: #FFD7DF;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 12px;
+  margin-bottom: 8px;
+  transition: 0.3s;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.menu-btn:hover {
+  background-color: rgba(255, 215, 223, 0.08);
+  color: #FFD7DF;
+}
+
+.menu-btn.active {
+  background-color: #1A5632;
+  color: #FFD7DF;
+  font-weight: bold;
+}
+
+.user-section {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  background-color: #163e29;
+  border-radius: 15px;
+}
+
+.user-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid #FFD7DF;
+}
+
+.user-info {
+  margin-left: 10px;
+}
+
+.user-name {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0;
+}
+
+.logout-btn {
+  color: #FFD7DF;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0;
+}
+
+/* ============= MAIN CONTENT ============= */
+.main-content {
+  flex-grow: 1;
+  padding: 40px;
+  background-color: #16472b;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+}
+
+.header h1 {
+  font-size: 24px;
+}
+
+.points-badge {
+  background-color: #FFD7DF;
+  color: #1A5632;
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 14px;
+}
+
+/* ============= CONTENT ============= */
+.content {
+  max-width: 600px;
+}
+
+.workout-card {
+  background-color: #153a26;
+  padding: 25px;
+  border-radius: 24px;
+  border: 1px solid #0f3321;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+}
+
+.card-title {
+  color: #FFD7DF;
+  margin-bottom: 15px;
+}
+
+.label {
+  font-size: 10px;
+  color: #555;
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+  letter-spacing: 1px;
+}
+
+.select {
+  width: 100%;
+  padding: 15px;
+  background-color: #143b24;
+  color: #FFD7DF;
+  border: 1px solid #0f3321;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.stats-row {
+  display: flex;
+  gap: 15px;
+  align-items: flex-end;
+  margin-bottom: 25px;
+}
+
+.input-group {
+  flex: 1;
+}
+
+.input {
+  width: 100%;
+  padding: 15px;
+  background-color: #143b24;
+  color: #FFD7DF;
+  border: 1px solid #0f3321;
+  border-radius: 12px;
+}
+
+.add-set-btn {
+  height: 50px;
+  width: 50px;
+  background-color: #1A5632;
+  color: #FFD7DF;
+  border: 1px solid #FFD7DF;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 20px;
+}
+
+.add-set-btn:hover {
+  background-color: #143b24;
+  color: #FFD7DF;
+}
+
+.finish-btn {
+  width: 100%;
+  padding: 18px;
+  background-color: #1A5632;
+  color: #FFD7DF;
+  border: 1px solid #FFD7DF;
+  border-radius: 16px;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.finish-btn:hover {
+  background-color: #143b24;
+}
+
+/* ============= LIGAS ============= */
+.league-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 15px 0;
+  border-bottom: 1px solid #0f3321;
+}
+
+.league-item-highlight {
+  color: #FFD7DF;
+}
+
+.league-item-dim {
+  color: #d7b4c1;
+}
+
+.create-league-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 12px;
+  background-color: #1A5632;
+  border: 1px dashed #FFD7DF;
+  color: #FFD7DF;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.create-league-btn:hover {
+  background-color: rgba(255, 215, 223, 0.08);
+}
+
+/* ============= LOGIN PAGE ============= */
+.login-page {
+  height: 100vh;
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  align-items: center;
+  background-color: #1A5632;
+  color: #FFD7DF;
 }
 
-.App-link {
-  color: #61dafb;
+.logo {
+  font-size: 64px;
+  font-weight: 900;
+  margin-bottom: 10px;
+  color: #FFD7DF;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.login-page-subtitle {
+  color: #ffd7df;
+  margin-bottom: 20px;
+}
+
+.login-btn {
+  padding: 15px 40px;
+  background-color: #FFD7DF;
+  color: #1A5632;
+  border: none;
+  border-radius: 30px;
+  font-weight: bold;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+.login-btn:hover {
+  background-color: #ffe5eb;
 }
