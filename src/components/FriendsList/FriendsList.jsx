@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { toast } from 'sonner';
 import {
   buscarUsuarios, enviarSolicitud, obtenerAmigos,
   obtenerSolicitudesPendientes, aceptarSolicitud, rechazarSolicitud, eliminarAmigo,
@@ -54,26 +55,29 @@ export default function FriendsList({ user, userData, onVerPerfil }) {
     try {
       await enviarSolicitud(user.uid, userData?.displayName || user.displayName, toUid);
       setEnviadas((prev) => new Set(prev).add(toUid));
+      toast.success('Solicitud de amistad enviada');
     } catch (err) {
       setError(err.message);
+      toast.error(err.message);
     }
   };
 
   const handleAceptar = async (id) => {
     await aceptarSolicitud(id);
     await cargarAmigos();
+    toast.success('Solicitud aceptada');
   };
 
   const handleRechazar = async (id) => {
     await rechazarSolicitud(id);
     setSolicitudes((prev) => prev.filter((s) => s.id !== id));
+    toast('Solicitud rechazada');
   };
 
   const handleEliminar = async (id) => {
-    if (window.confirm('¿Eliminar a este amigo?')) {
-      await eliminarAmigo(id);
-      setAmigos((prev) => prev.filter((a) => a.id !== id));
-    }
+    await eliminarAmigo(id);
+    setAmigos((prev) => prev.filter((a) => a.id !== id));
+    toast('Amigo eliminado');
   };
 
   const amigoUids = new Set(amigos.map((a) => a.friendUid));

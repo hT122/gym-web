@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { toast } from 'sonner';
 import { getOrCreateChat, sendMessage, subscribeToMessages, subscribeToChat, markAsRead, clearChat } from '../../firebase/chat';
 import { bloquearUsuario, desbloquearUsuario, subscribeToUserDoc } from '../../firebase/users';
 
@@ -151,17 +152,18 @@ export default function ChatWindow({ user, userData, chatInfo }) {
 
   const handleClear = async () => {
     if (!chatId) return;
-    if (window.confirm('¿Limpiar todos los mensajes de esta conversación?')) {
-      await clearChat(chatId);
-    }
+    await clearChat(chatId);
+    toast('Conversación limpiada');
   };
 
   const handleBlock = async () => {
     await bloquearUsuario(user.uid, chatInfo.friendUid);
+    toast(`${chatInfo.friendName} bloqueado`);
   };
 
   const handleUnblock = async () => {
     await desbloquearUsuario(user.uid, chatInfo.friendUid);
+    toast.success(`${chatInfo.friendName} desbloqueado`);
   };
 
   if (!chatInfo) {

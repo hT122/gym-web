@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
-import { actualizarDespuesDeEntrenamiento, obtenerDatosHistoricos } from '../firebase/users';
+import { actualizarDespuesDeEntrenamiento, obtenerDatosHistoricos, obtenerPRsDetallados } from '../firebase/users';
 import { actualizarPuntosEnLigas } from '../firebase/leagues';
+import { guardarPlantilla } from '../firebase/templates';
 import { calcularVolumenTotal, calcularPuntos } from '../utils/scoring';
 import WorkoutStarter from '../components/WorkoutStarter/WorkoutStarter';
 import WorkoutForm from '../components/WorkoutForm/WorkoutForm';
 import WorkoutHistorial from '../components/WorkoutHistorial/WorkoutHistorial';
+import { toast } from 'sonner';
 
 export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
   const [isWorkoutStarted, setIsWorkoutStarted] = useState(false);
@@ -14,6 +16,7 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
   const [series, setSeries] = useState([{ peso: '', repes: '' }]);
   const [ejerciciosDelEntrenamiento, setEjerciciosDelEntrenamiento] = useState([]);
   const [historial, setHistorial] = useState([]);
+  const [prs, setPrs] = useState({});
   const [editingWorkoutId, setEditingWorkoutId] = useState(null);
 
   const cargarHistorial = async () => {
@@ -30,8 +33,15 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
     }
   };
 
+  const cargarPRs = async () => {
+    if (!user) return;
+    const data = await obtenerPRsDetallados(user.uid);
+    setPrs(data);
+  };
+
   useEffect(() => {
     cargarHistorial();
+    cargarPRs();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
@@ -42,10 +52,41 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
     setIsWorkoutStarted(true);
   };
 
+  const cargarPlantilla = (plantilla) => {
+    setEditingWorkoutId(null);
+    setEjerciciosDelEntrenamiento(plantilla.ejercicios);
+    setSeries([{ peso: '', repes: '' }]);
+    setIsWorkoutStarted(true);
+    toast.success(`Plantilla "${plantilla.nombre}" cargada`);
+  };
+
+  const handleGuardarPlantilla = async () => {
+    const seriesValidas = series.filter((s) => s.peso && s.repes);
+    const ejerciciosFinales = [...ejerciciosDelEntrenamiento];
+    if (seriesValidas.length > 0) {
+      ejerciciosFinales.push({
+        nombre: ejercicio,
+        series: seriesValidas.map((s) => ({ peso: Number(s.peso), repes: Number(s.repes) })),
+      });
+    }
+    if (ejerciciosFinales.length === 0) {
+      toast.error('Añade al menos un ejercicio antes de guardar la plantilla');
+      return;
+    }
+    const nombre = window.prompt('Nombre de la plantilla:');
+    if (!nombre?.trim()) return;
+    try {
+      await guardarPlantilla(user.uid, nombre, ejerciciosFinales);
+      toast.success('Plantilla guardada correctamente');
+    } catch {
+      toast.error('Error al guardar la plantilla');
+    }
+  };
+
   const agregarOtroEjercicio = () => {
     const seriesValidas = series.filter((s) => s.peso && s.repes);
     if (seriesValidas.length === 0) {
-      alert('Rellena al menos una serie válida antes de añadir otro ejercicio.');
+      toast.error('Rellena al menos una serie válida antes de continuar.');
       return;
     }
     setEjerciciosDelEntrenamiento([
@@ -64,9 +105,8 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
   };
 
   const eliminarEjercicioGuardado = (index) => {
-    if (window.confirm('¿Seguro que quieres eliminar este ejercicio de la sesión?')) {
-      setEjerciciosDelEntrenamiento(ejerciciosDelEntrenamiento.filter((_, i) => i !== index));
-    }
+    setEjerciciosDelEntrenamiento(ejerciciosDelEntrenamiento.filter((_, i) => i !== index));
+    toast('Ejercicio eliminado de la sesión');
   };
 
   const editarEntrenamiento = (entrenamiento) => {
@@ -78,18 +118,18 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
   };
 
   const eliminarEntrenamiento = async (id) => {
-    if (window.confirm('¿Estás seguro de que quieres eliminar este entrenamiento de tu historial?')) {
-      try {
-        await deleteDoc(doc(db, 'entrenamientos', id));
-        const restantes = historial.filter((e) => e.id !== id);
-        setHistorial(restantes);
-        const nuevosPuntos = restantes.reduce((sum, e) => sum + (e.puntos || 0), 0);
-        await updateDoc(doc(db, 'users', user.uid), { puntosTotales: nuevosPuntos });
-        await onRefrescarUsuario(user.uid);
-      } catch (error) {
-        console.error('Error al eliminar: ', error);
-        alert('Hubo un error al eliminar el entrenamiento.');
-      }
+    try {
+      await deleteDoc(doc(db, 'entrenamientos', id));
+      const restantes = historial.filter((e) => e.id !== id);
+      setHistorial(restantes);
+      const nuevosPuntos = restantes.reduce((sum, e) => sum + (e.puntos || 0), 0);
+      await updateDoc(doc(db, 'users', user.uid), { puntosTotales: nuevosPuntos });
+      await onRefrescarUsuario(user.uid);
+      await cargarPRs();
+      toast('Entrenamiento eliminado');
+    } catch (error) {
+      console.error('Error al eliminar: ', error);
+      toast.error('Error al eliminar el entrenamiento');
     }
   };
 
@@ -103,7 +143,7 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
       });
     }
     if (ejerciciosFinales.length === 0) {
-      alert('Por favor, introduce al menos un ejercicio con peso y repeticiones.');
+      toast.error('Añade al menos un ejercicio con peso y repeticiones.');
       return;
     }
 
@@ -111,6 +151,12 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
       if (editingWorkoutId) {
         await updateDoc(doc(db, 'entrenamientos', editingWorkoutId), { ejercicios: ejerciciosFinales });
         setEditingWorkoutId(null);
+        setSeries([{ peso: '', repes: '' }]);
+        setEjercicio('Press de Banca');
+        setEjerciciosDelEntrenamiento([]);
+        setIsWorkoutStarted(false);
+        await Promise.all([cargarHistorial(), cargarPRs()]);
+        toast.success('Entrenamiento actualizado');
       } else {
         const fecha = new Date().toISOString();
         const volumenTotal = calcularVolumenTotal(ejerciciosFinales);
@@ -144,24 +190,24 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
         await actualizarDespuesDeEntrenamiento(user.uid, puntosGanados, fecha);
         await actualizarPuntosEnLigas(user.uid, puntosGanados);
         await onRefrescarUsuario(user.uid);
+        setSeries([{ peso: '', repes: '' }]);
+        setEjercicio('Press de Banca');
+        setEjerciciosDelEntrenamiento([]);
+        setIsWorkoutStarted(false);
+        await Promise.all([cargarHistorial(), cargarPRs()]);
+        toast.success(`¡Entrenamiento guardado! +${puntosGanados} puntos${tuvoPR ? ' — Nuevo récord!' : ''}`);
       }
-
-      setSeries([{ peso: '', repes: '' }]);
-      setEjercicio('Press de Banca');
-      setEjerciciosDelEntrenamiento([]);
-      setIsWorkoutStarted(false);
-      await cargarHistorial();
     } catch (error) {
       console.error('Error al guardar: ', error);
-      alert('Hubo un error al guardar tu entrenamiento.');
+      toast.error('Hubo un error al guardar el entrenamiento');
     }
   };
 
   return (
     <div className="entrenar-layout">
-      <div className="entrenar-panel-left">
+<div className="entrenar-panel-left">
         {!isWorkoutStarted ? (
-          <WorkoutStarter onStart={handleStart} />
+          <WorkoutStarter user={user} onStart={handleStart} onCargarPlantilla={cargarPlantilla} />
         ) : (
           <WorkoutForm
             ejercicio={ejercicio}
@@ -173,11 +219,13 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
             onEditarEjercicioGuardado={editarEjercicioGuardado}
             onEliminarEjercicioGuardado={eliminarEjercicioGuardado}
             onFinalizar={finalizarEntrenamiento}
+            onGuardarPlantilla={handleGuardarPlantilla}
           />
         )}
       </div>
       <WorkoutHistorial
         historial={historial}
+        prs={prs}
         onEditar={editarEntrenamiento}
         onEliminar={eliminarEntrenamiento}
       />

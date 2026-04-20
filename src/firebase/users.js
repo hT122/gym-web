@@ -94,3 +94,38 @@ export const obtenerDatosHistoricos = async (userId) => {
 
   return { prs, volumenAnterior };
 };
+
+// Returns detailed PRs with history for progress charts
+export const obtenerPRsDetallados = async (userId) => {
+  const q = query(collection(db, 'entrenamientos'), where('userId', '==', userId));
+  const snap = await getDocs(q);
+
+  const docs = snap.docs
+    .map(d => d.data())
+    .sort((a, b) => new Date(a.fecha) - new Date(b.fecha));
+
+  const ejercicios = {};
+
+  docs.forEach(workout => {
+    const fechaStr = workout.fecha?.slice(0, 10) || '';
+    (workout.ejercicios || []).forEach(ej => {
+      if (!ejercicios[ej.nombre]) {
+        ejercicios[ej.nombre] = {
+          maxPeso: 0, fechaMaxPeso: '',
+          maxVolumen: 0, fechaMaxVolumen: '',
+          historial: [],
+        };
+      }
+      const entry = ejercicios[ej.nombre];
+      const maxPesoSesion = Math.max(...ej.series.map(s => Number(s.peso) || 0));
+      const volSesion = ej.series.reduce((sum, s) => sum + (Number(s.peso) || 0) * (Number(s.repes) || 0), 0);
+
+      if (maxPesoSesion > entry.maxPeso) { entry.maxPeso = maxPesoSesion; entry.fechaMaxPeso = fechaStr; }
+      if (volSesion > entry.maxVolumen) { entry.maxVolumen = volSesion; entry.fechaMaxVolumen = fechaStr; }
+
+      entry.historial.push({ fecha: fechaStr, maxPeso: maxPesoSesion, volumen: volSesion });
+    });
+  });
+
+  return ejercicios;
+};

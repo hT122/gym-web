@@ -11,6 +11,7 @@ export default function WorkoutForm({
   onEditarEjercicioGuardado,
   onEliminarEjercicioGuardado,
   onFinalizar,
+  onGuardarPlantilla,
 }) {
   const [busqueda, setBusqueda] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -127,6 +128,11 @@ export default function WorkoutForm({
         <button className="finish-btn" onClick={onFinalizar}>
           FINALIZAR ENTRENAMIENTO
         </button>
+        {onGuardarPlantilla && (
+          <button className="template-btn" onClick={onGuardarPlantilla}>
+            Guardar como plantilla
+          </button>
+        )}
       </div>
     </div>
   );

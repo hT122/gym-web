@@ -8,6 +8,8 @@ import LigasPage from './pages/LigasPage';
 import PerfilPage from './pages/PerfilPage';
 import CaloriasPage from './pages/CaloriasPage';
 import ChatPage from './pages/ChatPage';
+import PRsPage from './pages/PRsPage';
+import AjustesPage from './pages/AjustesPage';
 import Sidebar from './components/Sidebar/Sidebar';
 import './App.css';
 
@@ -42,6 +44,16 @@ function App() {
 
   if (!user) return <LoginPage />;
 
+  const titles = {
+    entrenar: 'Registro de Hoy',
+    ligas: 'Ligas Fantasy',
+    perfil: 'Mi Perfil',
+    calorias: 'Calculadora de Calorías',
+    chat: 'Mensajes',
+    prs: 'Récords Personales',
+    ajustes: 'Ajustes',
+  };
+
   return (
     <div className="app-container">
       <Sidebar
@@ -53,25 +65,17 @@ function App() {
       />
       <main className="main-content">
         <header className="header">
-          <h1>
-            {activeTab === 'entrenar' && 'Registro de Hoy'}
-            {activeTab === 'ligas' && 'Ligas Fantasy'}
-            {activeTab === 'perfil' && 'Mi Perfil'}
-            {activeTab === 'calorias' && 'Calculadora de Calorías'}
-            {activeTab === 'chat' && 'Mensajes'}
-          </h1>
+          <h1>{titles[activeTab] || ''}</h1>
         </header>
         {activeTab === 'entrenar' && (
           <EntrenarPage user={user} userData={userData} onRefrescarUsuario={refrescarUsuario} />
         )}
-        {activeTab === 'ligas' && (
-          <LigasPage user={user} userData={userData} />
-        )}
-        {activeTab === 'perfil' && (
-          <PerfilPage user={user} userData={userData} />
-        )}
+        {activeTab === 'ligas' && <LigasPage user={user} userData={userData} />}
+        {activeTab === 'perfil' && <PerfilPage user={user} userData={userData} />}
         {activeTab === 'calorias' && <CaloriasPage />}
         {activeTab === 'chat' && <ChatPage user={user} userData={userData} />}
+        {activeTab === 'prs' && <PRsPage user={user} />}
+        {activeTab === 'ajustes' && <AjustesPage user={user} userData={userData} />}
       </main>
     </div>
   );
