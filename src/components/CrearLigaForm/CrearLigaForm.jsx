@@ -1,0 +1,37 @@
+import React, { useState } from 'react';
+
+export default function CrearLigaForm({ onCrear, onCancelar, error }) {
+  const [nombre, setNombre] = useState('');
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    onCrear(nombre.trim());
+  };
+
+  return (
+    <div className="workout-card">
+      <h3 className="card-title">Nueva liga</h3>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <input
+          className="auth-input"
+          placeholder="Nombre de la liga"
+          value={nombre}
+          onChange={(e) => setNombre(e.target.value)}
+          required
+        />
+        {error && <p className="auth-error">{error}</p>}
+        <div style={{ display: 'flex', gap: '10px' }}>
+          <button type="submit" className="finish-btn" style={{ letterSpacing: '1px' }}>Crear</button>
+          <button
+            type="button"
+            className="liga-action-btn secondary"
+            style={{ flex: 1 }}
+            onClick={onCancelar}
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+}
