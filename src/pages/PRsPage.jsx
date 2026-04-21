@@ -7,6 +7,7 @@ export default function PRsPage({ user }) {
   const [cargando, setCargando] = useState(true);
   const [busqueda, setBusqueda] = useState('');
   const [seleccionado, setSeleccionado] = useState(null);
+  const isDark = document.documentElement.classList.contains('dark');
 
   useEffect(() => {
     obtenerPRsDetallados(user.uid).then((data) => {
@@ -78,30 +79,30 @@ export default function PRsPage({ user }) {
             <p className="prs-chart-section-label">Peso máximo por sesión (kg)</p>
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={ejercicioActivo.historial} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="fecha" tick={{ fontSize: 11, fill: '#aaa' }} tickFormatter={(d) => d.slice(5)} />
-                <YAxis tick={{ fontSize: 11, fill: '#aaa' }} unit=" kg" />
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#262626' : '#f0f0f0'} />
+                <XAxis dataKey="fecha" tick={{ fontSize: 11, fill: isDark ? '#777' : '#aaa' }} tickFormatter={(d) => d.slice(5)} />
+                <YAxis tick={{ fontSize: 11, fill: isDark ? '#777' : '#aaa' }} unit=" kg" />
                 <Tooltip
                   formatter={(v) => [`${v} kg`, 'Peso']}
                   labelFormatter={(l) => `Sesión: ${l}`}
-                  contentStyle={{ borderRadius: '10px', border: '1px solid #e8e8e8', fontSize: '13px' }}
+                  contentStyle={{ borderRadius: '10px', border: `1px solid ${isDark ? '#333' : '#e8e8e8'}`, fontSize: '13px', background: isDark ? '#1c1c1c' : '#fff', color: isDark ? '#f0f0f0' : '#111' }}
                 />
-                <Line type="monotone" dataKey="maxPeso" stroke="#111" strokeWidth={2.5} dot={{ r: 4, fill: '#111' }} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="maxPeso" stroke={isDark ? '#f0f0f0' : '#111'} strokeWidth={2.5} dot={{ r: 4, fill: isDark ? '#f0f0f0' : '#111' }} activeDot={{ r: 6 }} />
               </LineChart>
             </ResponsiveContainer>
 
             <p className="prs-chart-section-label" style={{ marginTop: '24px' }}>Volumen por sesión (kg·reps)</p>
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={ejercicioActivo.historial} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                <XAxis dataKey="fecha" tick={{ fontSize: 11, fill: '#aaa' }} tickFormatter={(d) => d.slice(5)} />
-                <YAxis tick={{ fontSize: 11, fill: '#aaa' }} />
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#262626' : '#f0f0f0'} />
+                <XAxis dataKey="fecha" tick={{ fontSize: 11, fill: isDark ? '#777' : '#aaa' }} tickFormatter={(d) => d.slice(5)} />
+                <YAxis tick={{ fontSize: 11, fill: isDark ? '#777' : '#aaa' }} />
                 <Tooltip
                   formatter={(v) => [`${Math.round(v)} kg·reps`, 'Volumen']}
                   labelFormatter={(l) => `Sesión: ${l}`}
-                  contentStyle={{ borderRadius: '10px', border: '1px solid #e8e8e8', fontSize: '13px' }}
+                  contentStyle={{ borderRadius: '10px', border: `1px solid ${isDark ? '#333' : '#e8e8e8'}`, fontSize: '13px', background: isDark ? '#1c1c1c' : '#fff', color: isDark ? '#f0f0f0' : '#111' }}
                 />
-                <Line type="monotone" dataKey="volumen" stroke="#555" strokeWidth={2.5} dot={{ r: 4, fill: '#555' }} activeDot={{ r: 6 }} />
+                <Line type="monotone" dataKey="volumen" stroke={isDark ? '#aaa' : '#555'} strokeWidth={2.5} dot={{ r: 4, fill: isDark ? '#aaa' : '#555' }} activeDot={{ r: 6 }} />
               </LineChart>
             </ResponsiveContainer>
           </div>

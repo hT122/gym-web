@@ -21,7 +21,7 @@ export default function WorkoutStarter({ user, onStart, onCargarPlantilla }) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div className="workout-card" style={{ textAlign: 'center' }}>
         <h3 className="card-title">Rutina Libre</h3>
-        <p style={{ color: '#888', marginBottom: '24px', fontSize: '14px' }}>
+        <p style={{ color: 'var(--color-text-3)', marginBottom: '24px', fontSize: '14px' }}>
           Registra tu sesión de hoy
         </p>
         <button className="finish-btn" onClick={onStart}>

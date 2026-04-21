@@ -21,6 +21,9 @@ export default function UserStats({ user, userData, workoutsCount, siguiendo = 0
         <div className="profile-info">
           <p className="profile-name">{userData?.displayName || user.displayName || 'Usuario'}</p>
           <p className="profile-email">{user.email}</p>
+          {userData?.bio && (
+            <p className="profile-bio">{userData.bio}</p>
+          )}
           <div className="profile-follow-row">
             <span className="profile-follow-stat">
               <strong>{seguidores}</strong> seguidores

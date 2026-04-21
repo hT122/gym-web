@@ -8,9 +8,9 @@ const ACTIVIDAD = [
 ];
 
 const OBJETIVOS = [
-  { value: 'mantener', label: 'Mantenimiento del peso', factor: 1.0,  color: '#111' },
-  { value: 'perder',   label: 'Perder peso',            factor: 0.8,  color: '#c0392b' },
-  { value: 'ganar',    label: 'Ganar peso',             factor: 1.1,  color: '#27ae60' },
+  { value: 'mantener', label: 'Mantenimiento del peso', factor: 1.0,  lightColor: '#111', darkColor: '#f0f0f0' },
+  { value: 'perder',   label: 'Perder peso',            factor: 0.8,  lightColor: '#c0392b', darkColor: '#e05555' },
+  { value: 'ganar',    label: 'Ganar peso',             factor: 1.1,  lightColor: '#27ae60', darkColor: '#2ecc71' },
 ];
 
 function calcular({ unidad, peso, altCm, altFt, altIn, edad, genero, actividad, objetivo }) {
@@ -48,17 +48,21 @@ function MacroBar({ label, grams, cals, color, pct }) {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 6 }}>
-        <span style={{ fontSize: 12, fontWeight: 700, color: '#555', letterSpacing: 1 }}>{label}</span>
-        <span style={{ fontSize: 12, fontWeight: 700, color: '#111' }}>{grams}g <span style={{ color: '#aaa', fontWeight: 400 }}>· {cals} kcal</span></span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text-2)', letterSpacing: 1 }}>{label}</span>
+        <span style={{ fontSize: 12, fontWeight: 700, color: 'var(--color-text)' }}>
+          {grams}g <span style={{ color: 'var(--color-text-muted)', fontWeight: 400 }}>· {cals} kcal</span>
+        </span>
       </div>
-      <div style={{ background: '#f0f0f0', borderRadius: 99, height: 6, overflow: 'hidden' }}>
+      <div style={{ background: 'var(--color-border-subtle)', borderRadius: 99, height: 6, overflow: 'hidden' }}>
         <div style={{ width: `${pct}%`, background: color, borderRadius: 99, height: '100%', transition: 'width 0.6s ease' }} />
       </div>
     </div>
   );
 }
 
-export default function CaloriaCalculator() {
+export default function CaloriaCalculator({ onGuardarObjetivo }) {
+  const isDark = document.documentElement.classList.contains('dark');
+
   const [unidad, setUnidad]     = useState('metric');
   const [peso, setPeso]         = useState('');
   const [altCm, setAltCm]       = useState('');
@@ -84,26 +88,12 @@ export default function CaloriaCalculator() {
       <div className="workout-card calc-form-card">
         <h3 className="card-title">Calculadora de Calorías</h3>
 
-        {/* Toggle unidad */}
         <div className="calc-unit-toggle">
-          <button
-            type="button"
-            className={`calc-unit-btn ${unidad === 'metric' ? 'active' : ''}`}
-            onClick={() => setUnidad('metric')}
-          >
-            kg / cm
-          </button>
-          <button
-            type="button"
-            className={`calc-unit-btn ${unidad === 'imperial' ? 'active' : ''}`}
-            onClick={() => setUnidad('imperial')}
-          >
-            lb / ft
-          </button>
+          <button type="button" className={`calc-unit-btn ${unidad === 'metric' ? 'active' : ''}`} onClick={() => setUnidad('metric')}>kg / cm</button>
+          <button type="button" className={`calc-unit-btn ${unidad === 'imperial' ? 'active' : ''}`} onClick={() => setUnidad('imperial')}>lb / ft</button>
         </div>
 
         <form onSubmit={handleCalcular} style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {/* Peso y altura */}
           <div className="calc-row">
             <div className="input-group">
               <label className="label">{unidad === 'metric' ? 'PESO (kg)' : 'PESO (lb)'}</label>
@@ -134,7 +124,6 @@ export default function CaloriaCalculator() {
             </div>
           </div>
 
-          {/* Género */}
           <div>
             <label className="label">GÉNERO</label>
             <div className="calc-unit-toggle" style={{ width: 'fit-content' }}>
@@ -143,7 +132,6 @@ export default function CaloriaCalculator() {
             </div>
           </div>
 
-          {/* Nivel de actividad */}
           <div>
             <label className="label">NIVEL DE ACTIVIDAD</label>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
@@ -158,8 +146,8 @@ export default function CaloriaCalculator() {
                     style={{ display: 'none' }}
                   />
                   <div>
-                    <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: actividad === a.value ? '#111' : '#555' }}>{a.label}</p>
-                    <p style={{ margin: 0, fontSize: 12, color: '#aaa' }}>{a.desc}</p>
+                    <p style={{ margin: 0, fontSize: 14, fontWeight: 700, color: actividad === a.value ? 'var(--color-text)' : 'var(--color-text-2)' }}>{a.label}</p>
+                    <p style={{ margin: 0, fontSize: 12, color: 'var(--color-text-muted)' }}>{a.desc}</p>
                   </div>
                   {actividad === a.value && <span className="calc-option-check">✓</span>}
                 </label>
@@ -167,7 +155,6 @@ export default function CaloriaCalculator() {
             </div>
           </div>
 
-          {/* Objetivo */}
           <div>
             <label className="label">OBJETIVO</label>
             <div style={{ display: 'flex', gap: 10 }}>
@@ -191,19 +178,32 @@ export default function CaloriaCalculator() {
       {/* RESULTADOS */}
       {resultado && (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          {/* Calorías principales */}
           <div className="workout-card" style={{ textAlign: 'center' }}>
             <p className="label" style={{ marginBottom: 8 }}>CALORÍAS DIARIAS RECOMENDADAS</p>
-            <p className="calc-result-number" style={{ color: resultado.objetivo.color }}>
+            <p className="calc-result-number" style={{ color: isDark ? resultado.objetivo.darkColor : resultado.objetivo.lightColor }}>
               {resultado.calorias.toLocaleString()}
             </p>
-            <p style={{ fontSize: 13, color: '#aaa', margin: 0 }}>kcal / día · {resultado.objetivo.label}</p>
+            <p style={{ fontSize: 13, color: 'var(--color-text-muted)', margin: 0 }}>kcal / día · {resultado.objetivo.label}</p>
+            {onGuardarObjetivo && (
+              <button
+                className="finish-btn"
+                style={{ marginTop: 16, fontSize: 12, letterSpacing: 2 }}
+                onClick={() => onGuardarObjetivo({
+                  calorias: resultado.calorias,
+                  proteina: resultado.proteina,
+                  carbs:    resultado.carbs,
+                  grasa:    resultado.grasa,
+                })}
+              >
+                GUARDAR COMO OBJETIVO
+              </button>
+            )}
             <div className="calc-tdee-row">
               <div className="calc-tdee-item">
                 <p className="calc-tdee-value">{resultado.bmr.toLocaleString()}</p>
                 <p className="calc-tdee-label">BMR</p>
               </div>
-              <div style={{ width: 1, background: '#f0f0f0' }} />
+              <div style={{ width: 1, background: 'var(--color-border-subtle)' }} />
               <div className="calc-tdee-item">
                 <p className="calc-tdee-value">{resultado.tdee.toLocaleString()}</p>
                 <p className="calc-tdee-label">TDEE</p>
@@ -211,28 +211,27 @@ export default function CaloriaCalculator() {
             </div>
           </div>
 
-          {/* Macros */}
           <div className="workout-card" style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             <h3 className="card-title" style={{ margin: 0 }}>Macronutrientes</h3>
             <MacroBar
               label="PROTEÍNA"
               grams={resultado.proteina}
               cals={resultado.proteina * 4}
-              color="#111"
+              color={isDark ? '#f0f0f0' : '#111'}
               pct={(resultado.proteina / maxMacro) * 100}
             />
             <MacroBar
               label="CARBOHIDRATOS"
               grams={resultado.carbs}
               cals={resultado.carbs * 4}
-              color="#555"
+              color={isDark ? '#999' : '#555'}
               pct={(resultado.carbs / maxMacro) * 100}
             />
             <MacroBar
               label="GRASAS"
               grams={resultado.grasa}
               cals={resultado.grasa * 9}
-              color="#aaa"
+              color={isDark ? '#666' : '#aaa'}
               pct={(resultado.grasa / maxMacro) * 100}
             />
           </div>

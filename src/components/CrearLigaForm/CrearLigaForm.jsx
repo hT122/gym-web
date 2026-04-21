@@ -21,7 +21,7 @@ export default function CrearLigaForm({ onCrear, onCancelar, error }) {
             maxLength={50}
             required
           />
-          <p style={{ fontSize: '12px', color: '#aaa', margin: '4px 0 0', textAlign: 'right' }}>{nombre.length}/50</p>
+          <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '4px 0 0', textAlign: 'right' }}>{nombre.length}/50</p>
         </div>
         {error && <p className="auth-error">{error}</p>}
         <div style={{ display: 'flex', gap: '10px' }}>

@@ -1,12 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { updateProfile } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import { toast } from 'sonner';
 
-export default function AjustesPage({ user, userData }) {
-  const [nombre, setNombre] = useState(userData?.displayName || '');
+function comprimirImagen(file, maxSize = 256) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const ratio = Math.min(maxSize / img.width, maxSize / img.height, 1);
+      canvas.width  = Math.round(img.width  * ratio);
+      canvas.height = Math.round(img.height * ratio);
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      resolve(canvas.toDataURL('image/jpeg', 0.8));
+    };
+    img.onerror = reject;
+    img.src = url;
+  });
+}
+
+export default function AjustesPage({ user, userData, darkMode, onToggleDark }) {
+  const [nombre,    setNombre]    = useState(userData?.displayName || '');
+  const [bio,       setBio]       = useState(userData?.bio || '');
   const [guardando, setGuardando] = useState(false);
+  const [subiendoFoto, setSubiendoFoto] = useState(false);
+  const [fotoPreview, setFotoPreview]   = useState(user.photoURL || null);
+  const fileInputRef = useRef(null);
+
+  const handleFotoClick = () => fileInputRef.current?.click();
+
+  const handleFotoChange = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('La foto no puede superar 10 MB');
+      return;
+    }
+    setSubiendoFoto(true);
+    try {
+      const base64 = await comprimirImagen(file, 256);
+      await Promise.all([
+        updateProfile(user, { photoURL: base64 }),
+        updateDoc(doc(db, 'users', user.uid), { photoURL: base64 }),
+      ]);
+      setFotoPreview(base64);
+      toast.success('Foto de perfil actualizada');
+    } catch {
+      toast.error('Error al subir la foto');
+    } finally {
+      setSubiendoFoto(false);
+      e.target.value = '';
+    }
+  };
 
   const handleGuardar = async (e) => {
     e.preventDefault();
@@ -16,9 +64,9 @@ export default function AjustesPage({ user, userData }) {
     try {
       await Promise.all([
         updateProfile(user, { displayName: nombreTrim }),
-        updateDoc(doc(db, 'users', user.uid), { displayName: nombreTrim }),
+        updateDoc(doc(db, 'users', user.uid), { displayName: nombreTrim, bio: bio.trim() }),
       ]);
-      toast.success('Nombre actualizado correctamente');
+      toast.success('Perfil actualizado correctamente');
     } catch {
       toast.error('Error al guardar los cambios');
     } finally {
@@ -26,10 +74,31 @@ export default function AjustesPage({ user, userData }) {
     }
   };
 
+  const avatarSrc = fotoPreview ||
+    `https://ui-avatars.com/api/?name=${encodeURIComponent(userData?.displayName || 'U')}&background=111&color=fff&size=128`;
+
   return (
-    <div className="ajustes-layout">
+    <div className="ajustes-layout" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div className="workout-card ajustes-card">
         <h3 className="card-title">Información de perfil</h3>
+
+        {/* Avatar upload */}
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 24 }}>
+          <div className="avatar-upload-wrapper" onClick={handleFotoClick}>
+            <img src={avatarSrc} alt="avatar" className="avatar-upload-img" />
+            <div className="avatar-upload-overlay">
+              {subiendoFoto ? 'Subiendo...' : 'Cambiar foto'}
+            </div>
+          </div>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*"
+            style={{ display: 'none' }}
+            onChange={handleFotoChange}
+          />
+        </div>
+
         <form onSubmit={handleGuardar} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div className="input-group">
             <label className="label">NOMBRE DE USUARIO</label>
@@ -41,18 +110,58 @@ export default function AjustesPage({ user, userData }) {
               placeholder="Tu nombre"
               required
             />
-            <p style={{ fontSize: '12px', color: '#aaa', margin: '4px 0 0', textAlign: 'right' }}>{nombre.length}/50</p>
+            <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '4px 0 0', textAlign: 'right' }}>{nombre.length}/50</p>
+          </div>
+
+          <div className="input-group">
+            <label className="label">BIO</label>
+            <textarea
+              className="input"
+              value={bio}
+              onChange={(e) => e.target.value.length <= 150 && setBio(e.target.value)}
+              maxLength={150}
+              placeholder="Cuéntanos algo sobre ti..."
+              rows={3}
+              style={{ resize: 'none', lineHeight: 1.5 }}
+            />
+            <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: '4px 0 0', textAlign: 'right' }}>{bio.length}/150</p>
           </div>
 
           <div className="input-group">
             <label className="label">EMAIL</label>
-            <input className="input" value={user.email || '—'} disabled style={{ color: '#aaa', cursor: 'not-allowed' }} />
+            <input className="input" value={user.email || '—'} disabled style={{ color: 'var(--color-text-muted)', cursor: 'not-allowed' }} />
           </div>
 
           <button type="submit" className="finish-btn" disabled={guardando || !nombre.trim()}>
             {guardando ? 'Guardando...' : 'GUARDAR CAMBIOS'}
           </button>
         </form>
+      </div>
+
+      <div className="workout-card">
+        <h3 className="card-title">Apariencia</h3>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div>
+            <p style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--color-text)' }}>Modo oscuro</p>
+            <p style={{ margin: '3px 0 0', fontSize: '12px', color: 'var(--color-text-muted)' }}>Cambia entre tema claro y oscuro</p>
+          </div>
+          <button
+            onClick={onToggleDark}
+            aria-label="Activar modo oscuro"
+            style={{
+              width: 48, height: 28, borderRadius: 14,
+              background: darkMode ? 'var(--color-text)' : 'var(--color-text-muted)',
+              border: 'none', cursor: 'pointer', position: 'relative',
+              transition: 'background 0.2s', flexShrink: 0,
+            }}
+          >
+            <span style={{
+              position: 'absolute', top: 3, left: darkMode ? 23 : 3,
+              width: 22, height: 22, borderRadius: '50%',
+              background: '#ffffff', transition: 'left 0.2s', display: 'block',
+            }} />
+          </button>
+        </div>
       </div>
     </div>
   );

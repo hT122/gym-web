@@ -1,6 +1,7 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore"; // Cambio importante
-import { getAuth } from "firebase/auth";           // Cambio importante
+import { getFirestore } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { getStorage } from "firebase/storage";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAQ7UbB4QeovI9EBfrwLxGfXc1wxIOpcX4",
@@ -16,5 +17,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 
 // Exportamos las herramientas para usarlas en el resto de la web
-export const db = getFirestore(app); // Esta es tu base de datos
-export const auth = getAuth(app);    // Este es tu sistema de usuarios
+export const db      = getFirestore(app);
+export const auth    = getAuth(app);
+export const storage = getStorage(app);

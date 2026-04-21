@@ -69,7 +69,7 @@ export default function LigaList({ misLigas, onSelectLiga, onCrearLiga, onUnirse
                 </button>
               </div>
             </div>
-            <span style={{ color: '#aaa', fontSize: '20px' }}>›</span>
+            <span style={{ color: 'var(--color-text-muted)', fontSize: '20px' }}>›</span>
           </div>
         </div>
       ))}
