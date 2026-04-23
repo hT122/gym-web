@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { auth } from './firebase/config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { inicializarUsuario, subscribeToUserDoc, obtenerUsuario } from './firebase/users';
@@ -11,6 +11,7 @@ import CaloriasPage from './pages/CaloriasPage';
 import ChatPage from './pages/ChatPage';
 import PRsPage from './pages/PRsPage';
 import AjustesPage from './pages/AjustesPage';
+import AboutPage from './pages/AboutPage';
 import Sidebar from './components/Sidebar/Sidebar';
 import './App.css';
 
@@ -73,6 +74,16 @@ function AppShell({ user, userData, refrescarUsuario, darkMode, onToggleDark }) 
   );
 }
 
+function AboutWrapper() {
+  const navigate = useNavigate();
+  return (
+    <AboutPage
+      onLogin={() => navigate('/')}
+      onRegister={() => navigate('/')}
+    />
+  );
+}
+
 function App() {
   const [user, setUser] = useState(undefined);
   const [userData, setUserData] = useState(null);
@@ -112,21 +123,32 @@ function App() {
   };
 
   if (user === undefined) return null;
-  if (!user) return (
-    <BrowserRouter>
-      <LoginPage darkMode={darkMode} onToggleDark={() => setDarkMode((d) => !d)} />
-    </BrowserRouter>
-  );
+
+  if (!user) {
+    return (
+      <BrowserRouter>
+        <Routes>
+          <Route path="/about" element={<AboutWrapper />} />
+          <Route path="*" element={<LoginPage darkMode={darkMode} onToggleDark={() => setDarkMode((d) => !d)} />} />
+        </Routes>
+      </BrowserRouter>
+    );
+  }
 
   return (
     <BrowserRouter>
-      <AppShell
-        user={user}
-        userData={userData}
-        refrescarUsuario={refrescarUsuario}
-        darkMode={darkMode}
-        onToggleDark={() => setDarkMode((d) => !d)}
-      />
+      <Routes>
+        <Route path="/about" element={<AboutWrapper />} />
+        <Route path="*" element={
+          <AppShell
+            user={user}
+            userData={userData}
+            refrescarUsuario={refrescarUsuario}
+            darkMode={darkMode}
+            onToggleDark={() => setDarkMode((d) => !d)}
+          />
+        } />
+      </Routes>
     </BrowserRouter>
   );
 }

@@ -1,7 +1,21 @@
+@import "tailwindcss";
+
+/* ── Tailwind v4 theme tokens usados por motion-footer ── */
+@theme {
+  --color-background:       #f2f1ef;
+  --color-foreground:       #111111;
+  --color-primary:          #111111;
+  --color-secondary:        #888888;
+  --color-muted-foreground: #aaaaaa;
+  --color-destructive:      #c0392b;
+  --color-border:           #e4e2de;
+}
+
 html {
   scroll-behavior: smooth;
 }
 
+/* ── Variables base del app ── */
 :root {
   --color-bg: #f2f1ef;
   --color-surface: #ffffff;
@@ -25,12 +39,22 @@ html {
 
 html.dark {
   color-scheme: dark;
+
+  /* Tailwind theme overrides */
+  --color-background:       #0f0e0d;
+  --color-foreground:       #f0f0f0;
+  --color-primary:          #f0f0f0;
+  --color-secondary:        #777777;
+  --color-muted-foreground: #777777;
+  --color-destructive:      #e05555;
+  --color-border:           #2e2c2a;
+
+  /* App vars */
   --color-bg: #0f0e0d;
   --color-surface: #181715;
   --color-surface-2: #232120;
   --color-input-focus: #2e2c2a;
   --color-surface-hover: #2a2826;
-  --color-border: #2e2c2a;
   --color-border-subtle: #232120;
   --color-text: #f0f0f0;
   --color-text-2: #bbbbbb;
