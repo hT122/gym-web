@@ -1,9 +1,14 @@
 * { box-sizing: border-box; }
 
+:focus-visible {
+  outline: 2px solid var(--color-text);
+  outline-offset: 2px;
+}
+
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   background: var(--color-bg);
   color: var(--color-text);
 }
@@ -11,7 +16,7 @@ body {
 /* ===== LAYOUT ===== */
 .app-container {
   display: flex;
-  height: 100vh;
+  min-height: 100dvh;
   background: var(--color-bg);
 }
 
@@ -48,7 +53,7 @@ body {
   border-radius: 10px;
   margin-bottom: 4px;
   transition: 0.15s;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   display: flex;
   align-items: center;
 }
@@ -65,7 +70,7 @@ body {
   color: #fff;
   font-size: 11px;
   font-weight: 800;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   min-width: 20px;
   height: 20px;
   border-radius: 99px;
@@ -186,19 +191,18 @@ body {
 
 .pr-card {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: 14px;
   padding: 16px;
   margin-bottom: 10px;
   cursor: pointer;
   transition: 0.15s;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
 }
 
-.pr-card:hover { border-color: var(--color-text-faint); }
+.pr-card:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09); }
 
 .pr-card--active {
-  border-color: var(--color-text);
-  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
 .pr-card-name {
@@ -224,6 +228,7 @@ body {
   font-weight: 800;
   color: var(--color-text);
   font-family: 'Manrope', sans-serif;
+  font-variant-numeric: tabular-nums;
 }
 
 .pr-stat-label {
@@ -352,7 +357,7 @@ body {
   color: var(--color-text-3);
   font-size: 13px;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   cursor: pointer;
   transition: 0.15s;
   margin-top: 4px;
@@ -375,9 +380,9 @@ body {
   color: var(--color-accent-fg);
   font-size: 14px;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   box-shadow: 0 8px 32px rgba(0,0,0,0.18);
-  z-index: 9999;
+  z-index: 1100;
   animation: toast-in 0.25s ease;
   white-space: nowrap;
 }
@@ -433,7 +438,7 @@ body {
   color: var(--color-text-muted);
   cursor: pointer;
   padding: 0;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   transition: color 0.15s;
 }
 
@@ -449,7 +454,12 @@ body {
   padding: 40px 40px 40px 40px;
 }
 
-.header { margin-bottom: 28px; }
+.header {
+  margin-bottom: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
 
 .header h1 {
   font-family: 'Manrope', sans-serif;
@@ -458,6 +468,26 @@ body {
   letter-spacing: -1px;
   color: var(--color-text);
   margin: 0;
+  text-wrap: balance;
+}
+
+.dark-mode-toggle {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.dark-mode-toggle:hover {
+  background: var(--color-bg);
 }
 
 /* ===== SPLIT LAYOUT (entrenar) ===== */
@@ -500,7 +530,7 @@ body {
   border-radius: 8px;
   font-size: 13px;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: var(--color-text-3);
   cursor: pointer;
   transition: 0.15s;
@@ -532,10 +562,9 @@ body {
 /* ===== CARDS ===== */
 .workout-card {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
   margin-bottom: 0;
 }
 
@@ -568,7 +597,7 @@ body {
   border-radius: 8px;
   margin-bottom: 20px;
   font-size: 14px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   outline: none;
   transition: border-color 0.2s, background 0.2s;
   cursor: pointer;
@@ -599,7 +628,7 @@ body {
   border-bottom: 2px solid transparent;
   border-radius: 8px;
   font-size: 14px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   outline: none;
   transition: border-color 0.2s, background 0.2s;
 }
@@ -616,7 +645,7 @@ body {
   font-size: 14px;
   color: var(--color-text);
   outline: none;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   width: 100%;
   transition: border-color 0.2s, background 0.2s;
 }
@@ -638,11 +667,11 @@ body {
   letter-spacing: 2px;
   cursor: pointer;
   transition: opacity 0.2s, transform 0.1s;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.finish-btn:hover { opacity: 0.85; }
-.finish-btn:active { transform: scale(0.98); }
+.finish-btn:hover { background: var(--color-accent-hover); transform: translateY(-1px); }
+.finish-btn:active { transform: scale(0.98) translateY(0); }
 
 .add-set-btn {
   height: 48px;
@@ -662,9 +691,9 @@ body {
 /* ===== WORKOUT EXERCISE ITEMS ===== */
 .exercise-item {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: 14px;
   padding: 16px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
 }
 
 .exercise-item-header {
@@ -693,7 +722,7 @@ body {
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   transition: background 0.15s;
 }
 
@@ -708,7 +737,7 @@ body {
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   transition: background 0.15s;
 }
 
@@ -754,7 +783,7 @@ body {
   padding: 10px 16px;
   text-align: left;
   font-size: 13px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: var(--color-text-2);
   cursor: pointer;
   transition: background 0.1s;
@@ -783,7 +812,7 @@ body {
   margin-bottom: 16px;
   font-weight: 700;
   font-size: 13px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   letter-spacing: 1px;
   transition: border-color 0.2s, background 0.2s;
 }
@@ -793,9 +822,9 @@ body {
 /* ===== HISTORIAL ITEMS ===== */
 .historial-item {
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: 14px;
   padding: 16px;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
 }
 
 .historial-item-date {
@@ -818,7 +847,7 @@ body {
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   transition: opacity 0.15s;
 }
 
@@ -833,7 +862,7 @@ body {
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   transition: background 0.15s;
 }
 
@@ -885,7 +914,7 @@ body {
   cursor: pointer;
   font-size: 13px;
   letter-spacing: 1px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   transition: opacity 0.2s;
 }
 
@@ -933,7 +962,7 @@ body {
   padding: 6px 14px;
   cursor: pointer;
   font-size: 13px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   transition: 0.15s;
 }
 
@@ -954,7 +983,7 @@ body {
   border-radius: 10px;
   font-size: 13px;
   font-weight: 700;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   cursor: pointer;
   transition: 0.15s;
 }
@@ -1009,7 +1038,7 @@ body {
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   transition: 0.15s;
 }
 
@@ -1050,9 +1079,8 @@ body {
   flex: 1;
   min-height: 0;
   background: var(--color-surface);
-  border: 1px solid var(--color-border);
   border-radius: 16px;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
   overflow: hidden;
 }
 
@@ -1090,7 +1118,7 @@ body {
   text-align: left;
   width: 100%;
   transition: background 0.1s;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .chat-list-item:hover { background: var(--color-surface-hover); }
@@ -1150,7 +1178,7 @@ body {
   color: #fff;
   font-size: 11px;
   font-weight: 800;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   min-width: 20px;
   height: 20px;
   border-radius: 99px;
@@ -1276,7 +1304,7 @@ body {
   border-radius: 12px;
   padding: 12px 16px;
   font-size: 14px;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: var(--color-text);
   outline: none;
   resize: none;
@@ -1345,7 +1373,7 @@ body {
   text-align: left;
   font-size: 14px;
   font-weight: 600;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   color: var(--color-text-2);
   cursor: pointer;
   display: flex;
@@ -1376,7 +1404,7 @@ body {
   font-weight: 700;
   color: var(--color-text);
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   text-decoration: underline;
   padding: 0;
 }
@@ -1455,6 +1483,7 @@ body {
   font-weight: 900;
   margin: 0;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .tracker-rem-num {
@@ -1683,13 +1712,13 @@ body {
   font-size: 13px;
   font-weight: 600;
   color: var(--color-text);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .food-dropdown-meta {
   font-size: 11px;
   color: var(--color-text-muted);
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   white-space: nowrap;
 }
 
@@ -1767,7 +1796,7 @@ body {
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   transition: 0.15s;
 }
 
@@ -1816,7 +1845,7 @@ body {
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   text-align: center;
   transition: 0.15s;
   line-height: 1.3;
@@ -1836,6 +1865,7 @@ body {
   font-weight: 900;
   margin: 8px 0;
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .calc-tdee-row {
@@ -1975,6 +2005,7 @@ body {
   font-weight: 900;
   color: var(--color-text);
   margin: 0;
+  font-variant-numeric: tabular-nums;
 }
 
 .stat-label {
@@ -1989,9 +2020,9 @@ body {
 /* Friends */
 .friends-search-results {
   margin-top: 8px;
-  border: 1px solid var(--color-border);
   border-radius: 10px;
   overflow: hidden;
+  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
 }
 
 .friend-item {
@@ -2049,7 +2080,7 @@ body {
   font-size: 12px;
   font-weight: 700;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   white-space: nowrap;
   transition: opacity 0.15s;
 }
@@ -2065,7 +2096,7 @@ body {
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   transition: opacity 0.15s;
 }
 
@@ -2080,7 +2111,7 @@ body {
   font-size: 13px;
   font-weight: 700;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   transition: background 0.15s;
 }
 
@@ -2109,14 +2140,14 @@ body {
 
 /* ===== LOGIN PAGE ===== */
 .login-page {
-  height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
   background-color: var(--color-bg);
   position: relative;
   overflow: hidden;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .login-bg {
@@ -2124,6 +2155,10 @@ body {
   inset: 0;
   background: url('./gym.jpg') center/cover no-repeat;
   filter: grayscale(1);
+  opacity: 0.18;
+}
+
+.dark .login-bg {
   opacity: 0.07;
 }
 
@@ -2148,6 +2183,7 @@ body {
   letter-spacing: -2px;
   color: var(--color-text);
   margin: 0 0 6px 0;
+  text-wrap: balance;
 }
 
 .login-hero p {
@@ -2159,13 +2195,14 @@ body {
 }
 
 .login-card {
-  background: var(--color-surface);
-  border: 1px solid var(--color-border);
+  background: transparent;
+  border: 1px solid transparent;
   border-radius: 16px;
   padding: 36px 32px;
   width: 100%;
-  box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
 }
+
 
 .login-form {
   display: flex;
@@ -2197,9 +2234,13 @@ body {
   font-size: 14px;
   color: var(--color-text);
   outline: none;
-  transition: border-color 0.2s, background 0.2s;
-  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s, background 0.2s, transform 0.2s, padding 0.2s;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   width: 100%;
+}
+
+.login-field input:hover {
+  background: var(--color-input-focus);
 }
 
 .login-field input::placeholder { color: var(--color-text-faint); }
@@ -2217,11 +2258,11 @@ body {
   letter-spacing: 3px;
   cursor: pointer;
   transition: opacity 0.2s, transform 0.1s;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.login-submit:hover { opacity: 0.85; }
-.login-submit:active { transform: scale(0.98); }
+.login-submit:hover { background: var(--color-accent-hover); transform: translateY(-1px); }
+.login-submit:active { transform: scale(0.98) translateY(0); }
 
 .login-divider {
   display: flex;
@@ -2257,7 +2298,7 @@ body {
   color: var(--color-text-2);
   cursor: pointer;
   transition: background 0.2s, transform 0.1s;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
 .login-google-btn:hover { background: var(--color-surface-hover); }
@@ -2280,7 +2321,7 @@ body {
   font-weight: 700;
   color: var(--color-text);
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   text-decoration: underline;
   padding: 0;
 }
@@ -2324,7 +2365,7 @@ body {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   transition: background 0.15s;
 }
 
@@ -2341,7 +2382,7 @@ body {
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Plus Jakarta Sans', sans-serif;
   transition: background 0.15s;
 }
 
