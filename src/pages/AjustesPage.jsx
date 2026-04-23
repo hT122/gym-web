@@ -145,31 +145,6 @@ export default function AjustesPage({ user, userData, darkMode, onToggleDark }) 
         </form>
       </div>
 
-      <div className="workout-card">
-        <h3 className="card-title">Apariencia</h3>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <p style={{ margin: 0, fontSize: '14px', fontWeight: 700, color: 'var(--color-text)' }}>Modo oscuro</p>
-            <p style={{ margin: '3px 0 0', fontSize: '12px', color: 'var(--color-text-muted)' }}>Cambia entre tema claro y oscuro</p>
-          </div>
-          <button
-            onClick={onToggleDark}
-            aria-label="Activar modo oscuro"
-            style={{
-              width: 48, height: 28, borderRadius: 14,
-              background: darkMode ? 'var(--color-text)' : 'var(--color-text-muted)',
-              border: 'none', cursor: 'pointer', position: 'relative',
-              transition: 'background 0.2s', flexShrink: 0,
-            }}
-          >
-            <span style={{
-              position: 'absolute', top: 3, left: darkMode ? 23 : 3,
-              width: 22, height: 22, borderRadius: '50%',
-              background: '#ffffff', transition: 'left 0.2s', display: 'block',
-            }} />
-          </button>
-        </div>
-      </div>
     </div>
   );
 }
