@@ -12,6 +12,7 @@ import ChatPage from './pages/ChatPage';
 import PRsPage from './pages/PRsPage';
 import AjustesPage from './pages/AjustesPage';
 import Sidebar from './components/Sidebar/Sidebar';
+import OnboardingFlow from './components/OnboardingFlow/OnboardingFlow';
 import './App.css';
 
 const TITLES = {
@@ -50,6 +51,9 @@ function AppShell({ user, userData, refrescarUsuario, darkMode, onToggleDark }) 
 
   return (
     <div className="app-container">
+      {userData?.onboardingCompleto === false && (
+        <OnboardingFlow user={user} onCompletar={() => {}} />
+      )}
       <Sidebar user={user} userData={userData} onSignOut={() => signOut(auth)} />
       <main className="main-content">
         <header className="header">

@@ -22,6 +22,7 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
   const [prs, setPrs] = useState({});
   const [editingWorkoutId, setEditingWorkoutId] = useState(null);
   const [ejerciciosParaPlantilla, setEjerciciosParaPlantilla] = useState(null);
+  const [guardando, setGuardando] = useState(false);
 
   const cargarHistorial = async () => {
     if (!user) return;
@@ -160,6 +161,7 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
       return;
     }
 
+    setGuardando(true);
     try {
       if (editingWorkoutId) {
         await updateDoc(doc(db, 'entrenamientos', editingWorkoutId), { ejercicios: ejerciciosFinales });
@@ -213,6 +215,8 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
     } catch (error) {
       console.error('Error al guardar: ', error);
       toast.error('Hubo un error al guardar el entrenamiento');
+    } finally {
+      setGuardando(false);
     }
   };
 
@@ -240,6 +244,7 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
             onEditarEjercicioGuardado={editarEjercicioGuardado}
             onEliminarEjercicioGuardado={eliminarEjercicioGuardado}
             onFinalizar={finalizarEntrenamiento}
+                        guardando={guardando}
             onGuardarPlantilla={handleGuardarPlantilla}
           />
         )}

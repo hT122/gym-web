@@ -12,6 +12,7 @@ export default function WorkoutForm({
   onEliminarEjercicioGuardado,
   onFinalizar,
   onGuardarPlantilla,
+  guardando = false,
 }) {
   const [busqueda, setBusqueda] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -125,8 +126,13 @@ export default function WorkoutForm({
         <button className="add-exercise-btn" onClick={onAgregarOtroEjercicio}>
           + AÑADIR OTRO EJERCICIO
         </button>
-        <button className="finish-btn" onClick={onFinalizar}>
-          FINALIZAR ENTRENAMIENTO
+        <button className="finish-btn" onClick={onFinalizar} disabled={guardando} style={{ opacity: guardando ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+          {guardando && (
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: 'spin 0.8s linear infinite', flexShrink: 0 }}>
+              <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" strokeLinecap="round"/>
+            </svg>
+          )}
+          {guardando ? 'GUARDANDO...' : 'FINALIZAR ENTRENAMIENTO'}
         </button>
         {onGuardarPlantilla && (
           <button className="template-btn" onClick={onGuardarPlantilla}>

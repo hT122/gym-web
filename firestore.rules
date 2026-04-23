@@ -1,0 +1,107 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ── Helpers ──────────────────────────────────────────────────────────────
+    function estaAutenticado() {
+      return request.auth != null;
+    }
+
+    function esPropietario(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // ── Usuarios ─────────────────────────────────────────────────────────────
+    match /users/{userId} {
+      // Cualquier usuario autenticado puede leer perfiles (necesario para amigos/ligas)
+      allow read: if estaAutenticado();
+
+      // Solo el propio usuario puede crear o modificar su perfil
+      allow create: if esPropietario(userId);
+      allow update: if esPropietario(userId);
+      allow delete: if false;
+    }
+
+    // ── Entrenamientos ───────────────────────────────────────────────────────
+    match /entrenamientos/{workoutId} {
+      // Solo el dueño puede leer sus entrenamientos
+      // Miembros de la misma liga pueden leer (necesario para leaderboard)
+      allow read: if estaAutenticado();
+
+      // Solo el dueño puede crear/editar/borrar
+      allow create: if estaAutenticado() && request.resource.data.userId == request.auth.uid;
+      allow update: if estaAutenticado() && resource.data.userId == request.auth.uid;
+      allow delete: if estaAutenticado() && resource.data.userId == request.auth.uid;
+    }
+
+    // ── Ligas ────────────────────────────────────────────────────────────────
+    match /leagues/{leagueId} {
+      allow read: if estaAutenticado();
+      allow create: if estaAutenticado() && request.resource.data.creadoPor == request.auth.uid;
+      allow update: if estaAutenticado() && resource.data.creadoPor == request.auth.uid;
+      allow delete: if estaAutenticado() && resource.data.creadoPor == request.auth.uid;
+    }
+
+    match /league_members/{memberId} {
+      allow read: if estaAutenticado();
+      // Solo el propio usuario puede unirse o salir
+      allow create: if estaAutenticado() && request.resource.data.userId == request.auth.uid;
+      allow delete: if estaAutenticado() && resource.data.userId == request.auth.uid;
+      allow update: if false;
+    }
+
+    // ── Chat ─────────────────────────────────────────────────────────────────
+    match /chats/{chatId} {
+      // Solo los participantes del chat pueden leer
+      allow read: if estaAutenticado() && (
+        resource.data.participantes.hasAny([request.auth.uid])
+      );
+      allow create: if estaAutenticado() && request.resource.data.participantes.hasAny([request.auth.uid]);
+      allow update: if estaAutenticado() && resource.data.participantes.hasAny([request.auth.uid]);
+      allow delete: if false;
+
+      match /messages/{messageId} {
+        allow read: if estaAutenticado() && get(/databases/$(database)/documents/chats/$(chatId)).data.participantes.hasAny([request.auth.uid]);
+        allow create: if estaAutenticado() && request.resource.data.senderId == request.auth.uid;
+        allow update: if false;
+        allow delete: if false;
+      }
+    }
+
+    // ── Nutrición ────────────────────────────────────────────────────────────
+    match /food_logs/{logId} {
+      // El ID tiene formato {userId}_{fecha}, el userId es el primer segmento
+      allow read: if estaAutenticado() && logId.matches(request.auth.uid + '_.*');
+      allow write: if estaAutenticado() && logId.matches(request.auth.uid + '_.*');
+    }
+
+    // ── Plantillas ───────────────────────────────────────────────────────────
+    match /templates/{templateId} {
+      allow read: if estaAutenticado() && resource.data.userId == request.auth.uid;
+      allow create: if estaAutenticado() && request.resource.data.userId == request.auth.uid;
+      allow update: if estaAutenticado() && resource.data.userId == request.auth.uid;
+      allow delete: if estaAutenticado() && resource.data.userId == request.auth.uid;
+    }
+
+    // ── Amigos / Follows ─────────────────────────────────────────────────────
+    match /friends/{docId} {
+      allow read: if estaAutenticado();
+      allow create: if estaAutenticado();
+      allow update: if estaAutenticado();
+      allow delete: if estaAutenticado();
+    }
+
+    match /follows/{docId} {
+      allow read: if estaAutenticado();
+      allow create: if estaAutenticado() && request.resource.data.followerId == request.auth.uid;
+      allow delete: if estaAutenticado() && resource.data.followerId == request.auth.uid;
+      allow update: if false;
+    }
+
+    // Denegar todo lo demás
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -63,6 +63,7 @@ export const inicializarUsuario = async (user, overrideName = null) => {
       streak: 0,
       ultimoEntrenamiento: null,
       creadoEn: new Date().toISOString(),
+      onboardingCompleto: false,
     });
   } else {
     const data = snap.data();
@@ -70,6 +71,10 @@ export const inicializarUsuario = async (user, overrideName = null) => {
       await updateDoc(userRef, { nivel: deleteField(), nombreNivel: deleteField() });
     }
   }
+};
+
+export const completarOnboarding = async (userId) => {
+  await updateDoc(doc(db, 'users', userId), { onboardingCompleto: true });
 };
 
 export const obtenerUsuario = async (userId) => {
