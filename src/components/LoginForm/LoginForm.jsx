@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import GooeyText from '../GooeyText/GooeyText';
-import { GetStartedButton } from '../ui/get-started-button';
 
 import { auth } from '../../firebase/config';
 import {
@@ -136,10 +135,9 @@ export default function LoginForm({ darkMode, onToggleDark }) {
               />
             </div>
             {authError && <p className="auth-error">{authError}</p>}
-            <GetStartedButton
-              type="submit"
-              label={authMode === 'login' ? 'ENTRAR' : 'CREAR CUENTA'}
-            />
+            <button type="submit" className="login-submit">
+              {authMode === 'login' ? 'ENTRAR' : 'CREAR CUENTA'}
+            </button>
           </form>
 
           <div className="login-divider"><span>O CONTINÚA CON</span></div>
