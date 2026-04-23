@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { subscribeToChats } from '../../firebase/chat';
 
-export default function Sidebar({ user, userData, activeTab, setActiveTab, onSignOut }) {
+export default function Sidebar({ user, userData, onSignOut }) {
   const [totalUnread, setTotalUnread] = useState(0);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     const unsub = subscribeToChats(user.uid, (chats) => {
@@ -13,19 +16,22 @@ export default function Sidebar({ user, userData, activeTab, setActiveTab, onSig
     return () => unsub();
   }, [user.uid]);
 
-  const navigate = (tab) => {
-    setActiveTab(tab);
+  const ir = (path) => {
+    navigate(path);
     setMobileOpen(false);
   };
 
   const navItems = [
-    { key: 'entrenar', label: 'Entrenar' },
-    { key: 'ligas', label: 'Ligas Fantasy' },
-    { key: 'perfil', label: 'Perfil' },
-    { key: 'calorias', label: 'Calorías' },
-    { key: 'chat', label: 'Mensajes' },
-    { key: 'ajustes', label: 'Ajustes' },
+    { path: '/',         label: 'Entrenar' },
+    { path: '/ligas',    label: 'Ligas Fantasy' },
+    { path: '/perfil',   label: 'Perfil' },
+    { path: '/calorias', label: 'Calorías' },
+    { path: '/chat',     label: 'Mensajes' },
+    { path: '/ajustes',  label: 'Ajustes' },
   ];
+
+  const isActive = (path) =>
+    path === '/' ? location.pathname === '/' : location.pathname.startsWith(path);
 
   return (
     <>
@@ -51,14 +57,14 @@ export default function Sidebar({ user, userData, activeTab, setActiveTab, onSig
         <img src="/logo.png" alt="FGL Logo" className="sidebar-logo-img" />
 
         <div className="menu">
-          {navItems.map(({ key, label }) => (
+          {navItems.map(({ path, label }) => (
             <button
-              key={key}
-              onClick={() => navigate(key)}
-              className={`menu-btn ${activeTab === key ? 'active' : ''}`}
+              key={path}
+              onClick={() => ir(path)}
+              className={`menu-btn ${isActive(path) ? 'active' : ''}`}
             >
               {label}
-              {key === 'chat' && totalUnread > 0 && (
+              {path === '/chat' && totalUnread > 0 && (
                 <span className="sidebar-unread-badge">{totalUnread > 99 ? '99+' : totalUnread}</span>
               )}
             </button>

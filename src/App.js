@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { auth } from './firebase/config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
-import { inicializarUsuario, obtenerUsuario, subscribeToUserDoc } from './firebase/users';
+import { inicializarUsuario, subscribeToUserDoc, obtenerUsuario } from './firebase/users';
 import LoginPage from './pages/LoginPage';
 import EntrenarPage from './pages/EntrenarPage';
 import LigasPage from './pages/LigasPage';
@@ -13,10 +14,37 @@ import AjustesPage from './pages/AjustesPage';
 import Sidebar from './components/Sidebar/Sidebar';
 import './App.css';
 
+function AppShell({ user, userData, refrescarUsuario, darkMode, onToggleDark }) {
+  return (
+    <div className="app-container">
+      <Sidebar user={user} userData={userData} onSignOut={() => signOut(auth)} />
+      <main className="main-content">
+        <Routes>
+          <Route path="/" element={<><PageHeader title="Registro de Hoy" /><EntrenarPage user={user} userData={userData} onRefrescarUsuario={refrescarUsuario} /></>} />
+          <Route path="/ligas" element={<><PageHeader title="Ligas Fantasy" /><LigasPage user={user} userData={userData} /></>} />
+          <Route path="/perfil" element={<><PageHeader title="Mi Perfil" /><PerfilPage user={user} userData={userData} /></>} />
+          <Route path="/calorias" element={<><PageHeader title="Calculadora de Calorías" /><CaloriasPage user={user} userData={userData} /></>} />
+          <Route path="/chat" element={<><PageHeader title="Mensajes" /><ChatPage user={user} userData={userData} /></>} />
+          <Route path="/prs" element={<><PageHeader title="Récords Personales" /><PRsPage user={user} /></>} />
+          <Route path="/ajustes" element={<><PageHeader title="Ajustes" /><AjustesPage user={user} userData={userData} darkMode={darkMode} onToggleDark={onToggleDark} /></>} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
+    </div>
+  );
+}
+
+function PageHeader({ title }) {
+  return (
+    <header className="header">
+      <h1>{title}</h1>
+    </header>
+  );
+}
+
 function App() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState(undefined);
   const [userData, setUserData] = useState(null);
-  const [activeTab, setActiveTab] = useState('entrenar');
   const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
 
   useEffect(() => {
@@ -52,42 +80,19 @@ function App() {
     setUserData(data);
   };
 
-  if (!user) return <LoginPage />;
-
-  const titles = {
-    entrenar: 'Registro de Hoy',
-    ligas: 'Ligas Fantasy',
-    perfil: 'Mi Perfil',
-    calorias: 'Calculadora de Calorías',
-    chat: 'Mensajes',
-    prs: 'Récords Personales',
-    ajustes: 'Ajustes',
-  };
+  if (user === undefined) return null;
+  if (!user) return <BrowserRouter><LoginPage /></BrowserRouter>;
 
   return (
-    <div className="app-container">
-      <Sidebar
+    <BrowserRouter>
+      <AppShell
         user={user}
         userData={userData}
-        activeTab={activeTab}
-        setActiveTab={setActiveTab}
-        onSignOut={() => signOut(auth)}
+        refrescarUsuario={refrescarUsuario}
+        darkMode={darkMode}
+        onToggleDark={() => setDarkMode((d) => !d)}
       />
-      <main className="main-content">
-        <header className="header">
-          <h1>{titles[activeTab] || ''}</h1>
-        </header>
-        {activeTab === 'entrenar' && (
-          <EntrenarPage user={user} userData={userData} onRefrescarUsuario={refrescarUsuario} />
-        )}
-        {activeTab === 'ligas' && <LigasPage user={user} userData={userData} />}
-        {activeTab === 'perfil' && <PerfilPage user={user} userData={userData} />}
-        {activeTab === 'calorias' && <CaloriasPage user={user} userData={userData} />}
-        {activeTab === 'chat' && <ChatPage user={user} userData={userData} />}
-        {activeTab === 'prs' && <PRsPage user={user} />}
-        {activeTab === 'ajustes' && <AjustesPage user={user} userData={userData} darkMode={darkMode} onToggleDark={() => setDarkMode(d => !d)} />}
-      </main>
-    </div>
+    </BrowserRouter>
   );
 }
 

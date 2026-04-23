@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import CrearLigaForm from '../CrearLigaForm/CrearLigaForm';
 import UnirseForm from '../UnirseForm/UnirseForm';
 
-export default function LigaList({ misLigas, onSelectLiga, onCrearLiga, onUnirseALiga, ligaError }) {
+export default function LigaList({ misLigas, cargando, onSelectLiga, onCrearLiga, onUnirseALiga, ligaError }) {
   const [mostrarFormCrear, setMostrarFormCrear] = useState(false);
   const [mostrarFormUnirse, setMostrarFormUnirse] = useState(false);
 
@@ -49,7 +49,8 @@ export default function LigaList({ misLigas, onSelectLiga, onCrearLiga, onUnirse
         />
       )}
 
-      {misLigas.length === 0 && !mostrarFormCrear && !mostrarFormUnirse && (
+      {cargando && <p className="empty-state">Cargando ligas...</p>}
+      {!cargando && misLigas.length === 0 && !mostrarFormCrear && !mostrarFormUnirse && (
         <p className="empty-state">No perteneces a ninguna liga todavía.</p>
       )}
 

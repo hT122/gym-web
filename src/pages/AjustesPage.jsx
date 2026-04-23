@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import { updateProfile } from 'firebase/auth';
 import { doc, updateDoc } from 'firebase/firestore';
-import { db } from '../firebase/config';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { db, storage } from '../firebase/config';
 import { toast } from 'sonner';
 
 function comprimirImagen(file, maxSize = 256) {
@@ -15,7 +16,10 @@ function comprimirImagen(file, maxSize = 256) {
       canvas.height = Math.round(img.height * ratio);
       canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
       URL.revokeObjectURL(url);
-      resolve(canvas.toDataURL('image/jpeg', 0.8));
+      canvas.toBlob((blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error('Error al comprimir imagen'));
+      }, 'image/jpeg', 0.8);
     };
     img.onerror = reject;
     img.src = url;
@@ -41,12 +45,15 @@ export default function AjustesPage({ user, userData, darkMode, onToggleDark }) 
     }
     setSubiendoFoto(true);
     try {
-      const base64 = await comprimirImagen(file, 256);
+      const blob = await comprimirImagen(file, 256);
+      const storageRef = ref(storage, `avatars/${user.uid}`);
+      await uploadBytes(storageRef, blob, { contentType: 'image/jpeg' });
+      const downloadURL = await getDownloadURL(storageRef);
       await Promise.all([
-        updateProfile(user, { photoURL: base64 }),
-        updateDoc(doc(db, 'users', user.uid), { photoURL: base64 }),
+        updateProfile(user, { photoURL: downloadURL }),
+        updateDoc(doc(db, 'users', user.uid), { photoURL: downloadURL }),
       ]);
-      setFotoPreview(base64);
+      setFotoPreview(downloadURL);
       toast.success('Foto de perfil actualizada');
     } catch {
       toast.error('Error al subir la foto');

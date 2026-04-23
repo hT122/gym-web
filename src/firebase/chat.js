@@ -2,6 +2,7 @@ import { db } from './config';
 import {
   collection, doc, setDoc, addDoc, getDoc,
   onSnapshot, query, orderBy, updateDoc, where, increment, getDocs, writeBatch,
+  limitToLast, endBefore, deleteField,
 } from 'firebase/firestore';
 
 export const getChatId = (uid1, uid2) => [uid1, uid2].sort().join('_');
@@ -41,11 +42,29 @@ export const sendMessage = async (chatId, senderId, senderName, text, recipientU
 export const subscribeToMessages = (chatId, callback) => {
   const q = query(
     collection(db, 'chats', chatId, 'messages'),
-    orderBy('timestamp', 'asc')
+    orderBy('timestamp', 'asc'),
+    limitToLast(50)
   );
   return onSnapshot(q, (snap) => {
     callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
   });
+};
+
+export const setTyping = async (chatId, uid, escribiendo) => {
+  await updateDoc(doc(db, 'chats', chatId), {
+    [`typing.${uid}`]: escribiendo ? new Date().toISOString() : deleteField(),
+  });
+};
+
+export const cargarMensajesAnteriores = async (chatId, primerTimestamp) => {
+  const q = query(
+    collection(db, 'chats', chatId, 'messages'),
+    orderBy('timestamp', 'asc'),
+    endBefore(primerTimestamp),
+    limitToLast(50)
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 };
 
 export const markAsRead = async (chatId, uid) => {

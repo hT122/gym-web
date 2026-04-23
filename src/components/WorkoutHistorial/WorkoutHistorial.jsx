@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import ModalConfirmar from '../ModalConfirmar/ModalConfirmar';
+
+function useIsDark() {
+  return document.documentElement.classList.contains('dark');
+}
 
 function PRs({ prs }) {
   const [seleccionado, setSeleccionado] = useState(null);
   const [busqueda, setBusqueda] = useState('');
+  const isDark = useIsDark();
 
   const lista = Object.entries(prs)
     .filter(([nombre]) => nombre.toLowerCase().includes(busqueda.toLowerCase()))
@@ -12,6 +18,13 @@ function PRs({ prs }) {
   if (lista.length === 0 && !busqueda) {
     return <p className="empty-state">Completa entrenamientos para ver tus récords.</p>;
   }
+
+  const gridColor     = isDark ? '#262626' : '#f0f0f0';
+  const tickColor     = isDark ? '#777'    : '#aaa';
+  const lineColor     = isDark ? '#f0f0f0' : '#111';
+  const tooltipBg     = isDark ? '#1c1c1c' : '#fff';
+  const tooltipBorder = isDark ? '#333'    : '#e8e8e8';
+  const tooltipColor  = isDark ? '#f0f0f0' : '#111';
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -51,14 +64,14 @@ function PRs({ prs }) {
               <p className="prs-chart-section-label">Peso máximo por sesión</p>
               <ResponsiveContainer width="100%" height={140}>
                 <LineChart data={data.historial} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
-                  <XAxis dataKey="fecha" tick={{ fontSize: 10, fill: '#aaa' }} tickFormatter={(d) => d.slice(5)} />
-                  <YAxis tick={{ fontSize: 10, fill: '#aaa' }} unit="kg" />
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                  <XAxis dataKey="fecha" tick={{ fontSize: 10, fill: tickColor }} tickFormatter={(d) => d.slice(5)} />
+                  <YAxis tick={{ fontSize: 10, fill: tickColor }} unit="kg" />
                   <Tooltip
                     formatter={(v) => [`${v} kg`, 'Peso']}
-                    contentStyle={{ borderRadius: '10px', border: '1px solid #e8e8e8', fontSize: '12px' }}
+                    contentStyle={{ borderRadius: '10px', border: `1px solid ${tooltipBorder}`, fontSize: '12px', background: tooltipBg, color: tooltipColor }}
                   />
-                  <Line type="monotone" dataKey="maxPeso" stroke="#111" strokeWidth={2} dot={{ r: 3, fill: '#111' }} />
+                  <Line type="monotone" dataKey="maxPeso" stroke={lineColor} strokeWidth={2} dot={{ r: 3, fill: lineColor }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -69,11 +82,24 @@ function PRs({ prs }) {
   );
 }
 
-export default function WorkoutHistorial({ historial, prs, onEditar, onEliminar }) {
+export default function WorkoutHistorial({
+  historial, prs, onEditar, onEliminar,
+  cargando, totalHistorial, historialVisible, onCargarMas,
+}) {
   const [tab, setTab] = useState('historial');
+  const [pendienteEliminarId, setPendienteEliminarId] = useState(null);
 
   return (
     <div className="historial-panel">
+      {pendienteEliminarId && (
+        <ModalConfirmar
+          titulo="Eliminar entrenamiento"
+          mensaje="Esta acción eliminará el entrenamiento y recalculará tus puntos y racha. No se puede deshacer."
+          textoConfirmar="Eliminar"
+          onConfirmar={() => { onEliminar(pendienteEliminarId); setPendienteEliminarId(null); }}
+          onCancelar={() => setPendienteEliminarId(null)}
+        />
+      )}
       <div className="historial-tabs">
         <button
           className={`historial-tab ${tab === 'historial' ? 'historial-tab--active' : ''}`}
@@ -90,7 +116,9 @@ export default function WorkoutHistorial({ historial, prs, onEditar, onEliminar 
       </div>
 
       {tab === 'historial' && (
-        historial.length === 0 ? (
+        cargando ? (
+          <p className="empty-state">Cargando historial...</p>
+        ) : historial.length === 0 ? (
           <p className="empty-state">No tienes entrenamientos guardados aún.</p>
         ) : (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
@@ -101,7 +129,7 @@ export default function WorkoutHistorial({ historial, prs, onEditar, onEliminar 
                 </p>
                 <div className="historial-item-actions">
                   <button className="btn-historial-edit" onClick={() => onEditar(entrenamiento)}>Editar</button>
-                  <button className="btn-historial-delete" onClick={() => onEliminar(entrenamiento.id)}>Eliminar</button>
+                  <button className="btn-historial-delete" onClick={() => setPendienteEliminarId(entrenamiento.id)}>Eliminar</button>
                 </div>
                 <hr className="historial-divider" />
                 {entrenamiento.ejercicios && entrenamiento.ejercicios.map((ej, idx) => (
@@ -116,6 +144,11 @@ export default function WorkoutHistorial({ historial, prs, onEditar, onEliminar 
                 ))}
               </div>
             ))}
+            {historialVisible < totalHistorial && (
+              <button className="btn-secondary" onClick={onCargarMas} style={{ width: '100%' }}>
+                Cargar más ({totalHistorial - historialVisible} restantes)
+              </button>
+            )}
           </div>
         )
       )}

@@ -1,6 +1,42 @@
 import { db } from './config';
 import { doc, getDoc, setDoc, updateDoc, deleteField, collection, query, where, getDocs, onSnapshot } from 'firebase/firestore';
 
+export const recalcularPuntosTotales = async (userId) => {
+  const snap = await getDocs(query(collection(db, 'entrenamientos'), where('userId', '==', userId)));
+  const total = snap.docs.reduce((sum, d) => sum + (d.data().puntos || 0), 0);
+  await updateDoc(doc(db, 'users', userId), { puntosTotales: total });
+  return total;
+};
+
+export const recalcularStreakYFecha = async (userId) => {
+  const snap = await getDocs(query(collection(db, 'entrenamientos'), where('userId', '==', userId)));
+
+  if (snap.empty) {
+    await updateDoc(doc(db, 'users', userId), { streak: 0, ultimoEntrenamiento: null });
+    return;
+  }
+
+  const fechas = [...new Set(
+    snap.docs.map(d => d.data().fecha?.slice(0, 10)).filter(Boolean)
+  )].sort((a, b) => b.localeCompare(a));
+
+  const ultimoEntrenamiento = snap.docs
+    .map(d => d.data().fecha)
+    .filter(Boolean)
+    .sort((a, b) => b.localeCompare(a))[0];
+
+  let streak = 1;
+  for (let i = 0; i < fechas.length - 1; i++) {
+    const diff = Math.round(
+      (new Date(fechas[i]) - new Date(fechas[i + 1])) / (1000 * 60 * 60 * 24)
+    );
+    if (diff === 1) streak++;
+    else break;
+  }
+
+  await updateDoc(doc(db, 'users', userId), { streak, ultimoEntrenamiento });
+};
+
 export const bloquearUsuario = async (myUid, targetUid) => {
   await updateDoc(doc(db, 'users', myUid), { [`blockedUsers.${targetUid}`]: true });
 };

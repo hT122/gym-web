@@ -5,6 +5,7 @@ import LeaderboardView from '../components/LeaderboardView/LeaderboardView';
 
 export default function LigasPage({ user, userData }) {
   const [misLigas, setMisLigas] = useState([]);
+  const [cargandoLigas, setCargandoLigas] = useState(true);
   const [ligaActiva, setLigaActiva] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [periodoLeaderboard, setPeriodoLeaderboard] = useState('semana');
@@ -12,7 +13,11 @@ export default function LigasPage({ user, userData }) {
   const [ligaError, setLigaError] = useState('');
 
   useEffect(() => {
-    if (user) obtenerMisLigas(user.uid).then(setMisLigas);
+    if (user) {
+      obtenerMisLigas(user.uid)
+        .then(setMisLigas)
+        .finally(() => setCargandoLigas(false));
+    }
   }, [user]);
 
   useEffect(() => {
@@ -58,6 +63,7 @@ export default function LigasPage({ user, userData }) {
       ) : (
         <LigaList
           misLigas={misLigas}
+          cargando={cargandoLigas}
           onSelectLiga={setLigaActiva}
           onCrearLiga={handleCrearLiga}
           onUnirseALiga={handleUnirseALiga}

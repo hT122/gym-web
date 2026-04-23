@@ -76,7 +76,7 @@ export const obtenerMisLigas = async (userId) => {
   return ligas.filter(Boolean);
 };
 
-// Computes ranking on-the-fly by summing workout points in the period (no composite index needed)
+// Fetches all member workouts in one batched query (chunks of 30 per Firestore 'in' limit)
 export const obtenerLeaderboard = async (leagueId, periodo = 'semana') => {
   const memberSnap = await getDocs(
     query(collection(db, 'league_members'), where('leagueId', '==', leagueId))
@@ -89,17 +89,28 @@ export const obtenerLeaderboard = async (leagueId, periodo = 'semana') => {
     ? new Date(now - 7 * 24 * 60 * 60 * 1000).toISOString()
     : new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
-  const rankings = await Promise.all(members.map(async (member) => {
-    const workoutsSnap = await getDocs(
-      query(collection(db, 'entrenamientos'), where('userId', '==', member.userId))
-    );
-    const puntosEnPeriodo = workoutsSnap.docs
-      .filter(d => d.data().fecha >= startDate)
-      .reduce((sum, d) => sum + (d.data().puntos || 0), 0);
-    return { ...member, puntosEnPeriodo };
-  }));
+  const userIds = members.map(m => m.userId);
+  const chunks = [];
+  for (let i = 0; i < userIds.length; i += 30) chunks.push(userIds.slice(i, i + 30));
 
-  return rankings.sort((a, b) => b.puntosEnPeriodo - a.puntosEnPeriodo);
+  const allWorkouts = (
+    await Promise.all(
+      chunks.map(chunk =>
+        getDocs(query(collection(db, 'entrenamientos'), where('userId', 'in', chunk)))
+      )
+    )
+  ).flatMap(snap => snap.docs.map(d => d.data()));
+
+  const puntosPorUsuario = {};
+  allWorkouts
+    .filter(w => w.fecha >= startDate)
+    .forEach(w => {
+      puntosPorUsuario[w.userId] = (puntosPorUsuario[w.userId] || 0) + (w.puntos || 0);
+    });
+
+  return members
+    .map(m => ({ ...m, puntosEnPeriodo: puntosPorUsuario[m.userId] || 0 }))
+    .sort((a, b) => b.puntosEnPeriodo - a.puntosEnPeriodo);
 };
 
 export const actualizarPuntosEnLigas = async (userId, puntosGanados) => {
@@ -111,4 +122,17 @@ export const actualizarPuntosEnLigas = async (userId, puntosGanados) => {
       puntosTotal: (memberDoc.data().puntosTotal || 0) + puntosGanados,
     })
   ));
+};
+
+export const recalcularPuntosEnLigas = async (userId) => {
+  const [memberSnap, workoutsSnap] = await Promise.all([
+    getDocs(query(collection(db, 'league_members'), where('userId', '==', userId))),
+    getDocs(query(collection(db, 'entrenamientos'), where('userId', '==', userId))),
+  ]);
+  const total = workoutsSnap.docs.reduce((sum, d) => sum + (d.data().puntos || 0), 0);
+  await Promise.all(
+    memberSnap.docs.map(memberDoc =>
+      updateDoc(doc(db, 'league_members', memberDoc.id), { puntosTotal: total })
+    )
+  );
 };

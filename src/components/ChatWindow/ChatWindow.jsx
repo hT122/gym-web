@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
-import { getOrCreateChat, sendMessage, subscribeToMessages, subscribeToChat, markAsRead, clearChat } from '../../firebase/chat';
+import { getOrCreateChat, sendMessage, subscribeToMessages, subscribeToChat, markAsRead, clearChat, cargarMensajesAnteriores, setTyping } from '../../firebase/chat';
 import { bloquearUsuario, desbloquearUsuario, subscribeToUserDoc } from '../../firebase/users';
 
 function formatTimestamp(iso) {
@@ -90,12 +90,18 @@ function ChatMenu({ onClear, onBlock, onUnblock, isBlocked }) {
 
 export default function ChatWindow({ user, userData, chatInfo }) {
   const [messages, setMessages] = useState([]);
+  const [mensajesAntiguos, setMensajesAntiguos] = useState([]);
+  const [hasMasAntiguos, setHasMasAntiguos] = useState(false);
+  const [cargandoAntiguos, setCargandoAntiguos] = useState(false);
   const [chatDoc, setChatDoc] = useState(null);
   const [friendData, setFriendData] = useState(null);
   const [texto, setTexto] = useState('');
   const [chatId, setChatId] = useState(null);
+  const [cargandoChat, setCargandoChat] = useState(false);
   const [enviando, setEnviando] = useState(false);
   const bottomRef = useRef(null);
+  const topRef = useRef(null);
+  const typingTimeoutRef = useRef(null);
 
   const isBlocked = chatInfo ? !!(userData?.blockedUsers?.[chatInfo.friendUid]) : false;
   const iBlockedByFriend = chatInfo ? !!(friendData?.blockedUsers?.[user.uid]) : false;
@@ -103,10 +109,18 @@ export default function ChatWindow({ user, userData, chatInfo }) {
   useEffect(() => {
     if (!chatInfo) return;
     setMessages([]);
+    setMensajesAntiguos([]);
+    setHasMasAntiguos(false);
     setChatDoc(null);
-    setChatId(null);
+    setCargandoChat(true);
+    clearTimeout(typingTimeoutRef.current);
+    setChatId((prevChatId) => {
+      if (prevChatId) setTyping(prevChatId, user.uid, false).catch(() => {});
+      return null;
+    });
     getOrCreateChat(user.uid, chatInfo.friendUid, chatInfo.myName, chatInfo.friendName)
-      .then(setChatId);
+      .then(setChatId)
+      .finally(() => setCargandoChat(false));
   }, [chatInfo, user.uid]);
 
   useEffect(() => {
@@ -117,7 +131,10 @@ export default function ChatWindow({ user, userData, chatInfo }) {
 
   useEffect(() => {
     if (!chatId) return;
-    const unsubMsg  = subscribeToMessages(chatId, setMessages);
+    const unsubMsg = subscribeToMessages(chatId, (msgs) => {
+      setMessages(msgs);
+      setHasMasAntiguos((prev) => prev || msgs.length >= 50);
+    });
     const unsubChat = subscribeToChat(chatId, setChatDoc);
     markAsRead(chatId, user.uid);
     return () => { unsubMsg(); unsubChat(); };
@@ -133,9 +150,36 @@ export default function ChatWindow({ user, userData, chatInfo }) {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const handleCargarAntiguos = async () => {
+    const todosLosMensajes = [...mensajesAntiguos, ...messages];
+    const primerTimestamp = todosLosMensajes[0]?.timestamp;
+    if (!primerTimestamp || !chatId) return;
+    setCargandoAntiguos(true);
+    try {
+      const anteriores = await cargarMensajesAnteriores(chatId, primerTimestamp);
+      setMensajesAntiguos((prev) => [...anteriores, ...prev]);
+      setHasMasAntiguos(anteriores.length >= 50);
+      if (anteriores.length > 0) topRef.current?.scrollIntoView();
+    } finally {
+      setCargandoAntiguos(false);
+    }
+  };
+
+  const handleTextoChange = (e) => {
+    setTexto(e.target.value);
+    if (!chatId) return;
+    clearTimeout(typingTimeoutRef.current);
+    setTyping(chatId, user.uid, true).catch(() => {});
+    typingTimeoutRef.current = setTimeout(() => {
+      setTyping(chatId, user.uid, false).catch(() => {});
+    }, 3500);
+  };
+
   const handleSend = async (e) => {
     e.preventDefault();
     if (!texto.trim() || !chatId || enviando || isBlocked) return;
+    clearTimeout(typingTimeoutRef.current);
+    setTyping(chatId, user.uid, false).catch(() => {});
     setEnviando(true);
     const txt = texto;
     setTexto('');
@@ -176,6 +220,9 @@ export default function ChatWindow({ user, userData, chatInfo }) {
   }
 
   const lastReadAt = chatDoc?.lastReadAt || {};
+  const friendTypingAt = chatDoc?.typing?.[chatInfo?.friendUid];
+  const friendIsTyping = friendTypingAt
+    && (Date.now() - new Date(friendTypingAt).getTime()) < 5000;
 
   return (
     <div className="chat-window">
@@ -195,19 +242,49 @@ export default function ChatWindow({ user, userData, chatInfo }) {
       </div>
 
       <div className="chat-messages">
-        {messages.length === 0 && !isBlocked && (
-          <p className="chat-no-messages">Di hola a {chatInfo.friendName} 👋</p>
+        <div ref={topRef} />
+        {cargandoChat ? (
+          <p className="chat-no-messages">Cargando mensajes...</p>
+        ) : (
+          <>
+            {hasMasAntiguos && (
+              <div style={{ display: 'flex', justifyContent: 'center', padding: '8px 0' }}>
+                <button
+                  className="btn-secondary"
+                  onClick={handleCargarAntiguos}
+                  disabled={cargandoAntiguos}
+                  style={{ fontSize: '12px', padding: '6px 14px' }}
+                >
+                  {cargandoAntiguos ? 'Cargando...' : 'Cargar mensajes anteriores'}
+                </button>
+              </div>
+            )}
+            {[...mensajesAntiguos, ...messages].length === 0 && !isBlocked && (
+              <p className="chat-no-messages">Di hola a {chatInfo.friendName} 👋</p>
+            )}
+            {[...mensajesAntiguos, ...messages].map((msg) => (
+              <MessageBubble
+                key={msg.id}
+                msg={msg}
+                isOwn={msg.senderId === user.uid}
+                friendUid={chatInfo.friendUid}
+                lastReadAt={lastReadAt}
+              />
+            ))}
+          </>
         )}
-        {messages.map((msg) => (
-          <MessageBubble
-            key={msg.id}
-            msg={msg}
-            isOwn={msg.senderId === user.uid}
-            friendUid={chatInfo.friendUid}
-            lastReadAt={lastReadAt}
-          />
-        ))}
         <div ref={bottomRef} />
+      </div>
+
+      <div className="typing-indicator">
+        {friendIsTyping && (
+          <>
+            <span>{chatInfo.friendName} está escribiendo </span>
+            <span className="typing-dots">
+              <span /><span /><span />
+            </span>
+          </>
+        )}
       </div>
 
       {isBlocked ? (
@@ -225,7 +302,7 @@ export default function ChatWindow({ user, userData, chatInfo }) {
             className="chat-input"
             placeholder="Escribe un mensaje..."
             value={texto}
-            onChange={(e) => setTexto(e.target.value)}
+            onChange={handleTextoChange}
             onKeyDown={handleKeyDown}
             rows={1}
           />
