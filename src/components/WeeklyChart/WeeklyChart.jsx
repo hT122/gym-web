@@ -66,14 +66,14 @@ export default function WeeklyChart({ historial }) {
           <CartesianGrid vertical={false} stroke={gridColor} />
           <XAxis
             dataKey="dia"
-            tick={{ fontSize: 12, fill: tickColorX, fontFamily: 'Inter, sans-serif', fontWeight: 700 }}
+            tick={{ fontSize: 12, fill: tickColorX, fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700 }}
             axisLine={false}
             tickLine={false}
           />
           <YAxis
             allowDecimals={false}
             domain={[0, maxVal + 1]}
-            tick={{ fontSize: 11, fill: tickColorY, fontFamily: 'Inter, sans-serif' }}
+            tick={{ fontSize: 11, fill: tickColorY, fontFamily: "'Plus Jakarta Sans', sans-serif" }}
             axisLine={false}
             tickLine={false}
           />

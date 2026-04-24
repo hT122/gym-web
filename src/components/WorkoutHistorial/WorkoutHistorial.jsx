@@ -65,8 +65,8 @@ function PRs({ prs }) {
               <ResponsiveContainer width="100%" height={140}>
                 <LineChart data={data.historial} margin={{ top: 4, right: 4, left: -20, bottom: 0 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
-                  <XAxis dataKey="fecha" tick={{ fontSize: 10, fill: tickColor }} tickFormatter={(d) => d.slice(5)} />
-                  <YAxis tick={{ fontSize: 10, fill: tickColor }} unit="kg" />
+                  <XAxis dataKey="fecha" tick={{ fontSize: 10, fill: tickColor, fontFamily: "'Plus Jakarta Sans', sans-serif" }} tickFormatter={(d) => d.slice(5)} />
+                  <YAxis tick={{ fontSize: 10, fill: tickColor, fontFamily: "'Plus Jakarta Sans', sans-serif" }} unit="kg" />
                   <Tooltip
                     formatter={(v) => [`${v} kg`, 'Peso']}
                     contentStyle={{ borderRadius: '10px', border: `1px solid ${tooltipBorder}`, fontSize: '12px', background: tooltipBg, color: tooltipColor }}

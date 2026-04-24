@@ -83,24 +83,20 @@ export default function LoginForm({ darkMode, onToggleDark }) {
       </button>
       <div className="login-wrapper">
         <div className="login-hero">
-          {authMode === 'login' ? (
-            <div style={{ height: '90px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-              <GooeyText
-                texts={['ENTRENA', 'COMPITE', 'GANA']}
-                morphTime={1}
-                cooldownTime={0.4}
-                style={{
-                  fontFamily: 'Manrope, sans-serif',
-                  fontSize: '58px',
-                  fontWeight: 900,
-                  letterSpacing: '-2px',
-                  color: 'var(--color-text)',
-                }}
-              />
-            </div>
-          ) : (
-            <h1>JOIN THE LEAGUE</h1>
-          )}
+          <div style={{ height: '90px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <GooeyText
+              texts={['ENTRENA', 'COMPITE', 'GANA']}
+              morphTime={1}
+              cooldownTime={0.4}
+              style={{
+                fontFamily: 'Manrope, sans-serif',
+                fontSize: '58px',
+                fontWeight: 900,
+                letterSpacing: '-2px',
+                color: 'var(--color-text)',
+              }}
+            />
+          </div>
           <p>FANTASY GYM LEAGUE</p>
         </div>
 
@@ -138,7 +134,7 @@ export default function LoginForm({ darkMode, onToggleDark }) {
               />
             </div>
             {authError && <p className="auth-error">{authError}</p>}
-            <button type="submit" className="login-submit" disabled={cargando} style={{ opacity: cargando ? 0.7 : 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
+            <button type="submit" className="login-submit" disabled={cargando} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}>
               {cargando && (
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" style={{ animation: 'spin 0.8s linear infinite' }}>
                   <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" strokeLinecap="round"/>

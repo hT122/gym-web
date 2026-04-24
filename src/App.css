@@ -29,7 +29,7 @@ body {
 .sidebar {
   width: 260px;
   background: var(--color-surface);
-  border-right: 1px solid var(--color-border);
+  border-right: 1px solid var(--color-border-subtle);
   padding: 32px 20px;
   display: flex;
   flex-direction: column;
@@ -207,6 +207,7 @@ body {
 .pr-card:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09); }
 
 .pr-card--active {
+  background: var(--color-surface-2);
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
 }
 
@@ -328,12 +329,13 @@ body {
   align-items: center;
   gap: 12px;
   padding: 12px 14px;
-  border: 1px solid var(--color-border);
+  background: var(--color-surface);
   border-radius: 12px;
-  transition: 0.15s;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
+  transition: box-shadow 0.15s;
 }
 
-.plantilla-item:hover { border-color: var(--color-text-faint); }
+.plantilla-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); }
 
 .plantilla-info {
   flex: 1;
@@ -675,8 +677,9 @@ body {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.finish-btn:hover { background: var(--color-accent-hover); transform: translateY(-1px); }
-.finish-btn:active { transform: scale(0.98) translateY(0); }
+.finish-btn:hover:not(:disabled) { background: var(--color-accent-hover); transform: translateY(-1px); }
+.finish-btn:active:not(:disabled) { transform: scale(0.98) translateY(0); }
+.finish-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .add-set-btn {
   height: 48px;
@@ -920,22 +923,23 @@ body {
   font-size: 13px;
   letter-spacing: 1px;
   font-family: 'Plus Jakarta Sans', sans-serif;
-  transition: opacity 0.2s;
+  transition: background 0.15s, opacity 0.15s, transform 0.1s;
 }
 
-.liga-action-btn:hover { opacity: 0.8; }
+.liga-action-btn:hover:not(:disabled) { background: var(--color-accent-hover); transform: translateY(-1px); }
+.liga-action-btn:active:not(:disabled) { transform: scale(0.98) translateY(0); }
+.liga-action-btn:disabled { opacity: 0.45; cursor: not-allowed; }
 
 .liga-action-btn.secondary {
   background: var(--color-surface);
   color: var(--color-text);
   border: 1px solid var(--color-border);
-  opacity: 1;
 }
 
-.liga-action-btn.secondary:hover { background: var(--color-surface-2); opacity: 1; }
+.liga-action-btn.secondary:hover:not(:disabled) { background: var(--color-surface-2); transform: none; }
 
-.liga-card { cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s; }
-.liga-card:hover { border-color: var(--color-text); box-shadow: 0 8px 32px rgba(0,0,0,0.10); }
+.liga-card { cursor: pointer; transition: box-shadow 0.2s, transform 0.15s; }
+.liga-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.12); transform: translateY(-2px); }
 
 .liga-nombre {
   font-family: 'Manrope', sans-serif;
@@ -2266,8 +2270,9 @@ body {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.login-submit:hover { background: var(--color-accent-hover); transform: translateY(-1px); }
-.login-submit:active { transform: scale(0.98) translateY(0); }
+.login-submit:hover:not(:disabled) { background: var(--color-accent-hover); transform: translateY(-1px); }
+.login-submit:active:not(:disabled) { transform: scale(0.98) translateY(0); }
+.login-submit:disabled { opacity: 0.55; cursor: not-allowed; }
 
 .login-divider {
   display: flex;

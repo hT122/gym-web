@@ -80,8 +80,8 @@ export default function PRsPage({ user }) {
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={ejercicioActivo.historial} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#262626' : '#f0f0f0'} />
-                <XAxis dataKey="fecha" tick={{ fontSize: 11, fill: isDark ? '#777' : '#aaa' }} tickFormatter={(d) => d.slice(5)} />
-                <YAxis tick={{ fontSize: 11, fill: isDark ? '#777' : '#aaa' }} unit=" kg" />
+                <XAxis dataKey="fecha" tick={{ fontSize: 11, fill: isDark ? '#777' : '#aaa', fontFamily: "'Plus Jakarta Sans', sans-serif" }} tickFormatter={(d) => d.slice(5)} />
+                <YAxis tick={{ fontSize: 11, fill: isDark ? '#777' : '#aaa', fontFamily: "'Plus Jakarta Sans', sans-serif" }} unit=" kg" />
                 <Tooltip
                   formatter={(v) => [`${v} kg`, 'Peso']}
                   labelFormatter={(l) => `Sesión: ${l}`}
@@ -95,8 +95,8 @@ export default function PRsPage({ user }) {
             <ResponsiveContainer width="100%" height={200}>
               <LineChart data={ejercicioActivo.historial} margin={{ top: 8, right: 8, left: -16, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#262626' : '#f0f0f0'} />
-                <XAxis dataKey="fecha" tick={{ fontSize: 11, fill: isDark ? '#777' : '#aaa' }} tickFormatter={(d) => d.slice(5)} />
-                <YAxis tick={{ fontSize: 11, fill: isDark ? '#777' : '#aaa' }} />
+                <XAxis dataKey="fecha" tick={{ fontSize: 11, fill: isDark ? '#777' : '#aaa', fontFamily: "'Plus Jakarta Sans', sans-serif" }} tickFormatter={(d) => d.slice(5)} />
+                <YAxis tick={{ fontSize: 11, fill: isDark ? '#777' : '#aaa', fontFamily: "'Plus Jakarta Sans', sans-serif" }} />
                 <Tooltip
                   formatter={(v) => [`${Math.round(v)} kg·reps`, 'Volumen']}
                   labelFormatter={(l) => `Sesión: ${l}`}
