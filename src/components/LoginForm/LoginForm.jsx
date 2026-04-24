@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import GooeyText from '../GooeyText/GooeyText';
+import { LiquidButton } from '../ui/liquid-glass-button';
 
 import { auth } from '../../firebase/config';
 import {
@@ -40,6 +42,7 @@ function MoonIcon() {
 }
 
 export default function LoginForm({ darkMode, onToggleDark }) {
+  const navigate = useNavigate();
   const [authMode, setAuthMode] = useState('login');
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
@@ -72,6 +75,15 @@ export default function LoginForm({ darkMode, onToggleDark }) {
   return (
     <div className="login-page">
       <div className="login-bg" />
+
+      <div style={{ position: 'fixed', bottom: '28px', right: '28px', zIndex: 10 }}>
+        <LiquidButton onClick={() => navigate('/about')} size="lg" style={{ color: 'var(--color-text)', fontFamily: "'Plus Jakarta Sans', sans-serif", fontWeight: 700, letterSpacing: '0.3px' }}>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+          </svg>
+          About Us
+        </LiquidButton>
+      </div>
 
       <button
         className="dark-mode-toggle"
