@@ -48,12 +48,3 @@ export const calcularPuntos = ({ tuvoPR, streak, volumenActual, volumenAnterior 
 
   return { total: Math.max(0, total), desglose };
 };
-
-export const calcularNivel = (puntosTotales) => {
-  if (puntosTotales >= 5000) return { nivel: 10, nombreNivel: 'Leyenda' };
-  if (puntosTotales >= 2000) return { nivel: 8, nombreNivel: 'Élite' };
-  if (puntosTotales >= 1000) return { nivel: 6, nombreNivel: 'Avanzado' };
-  if (puntosTotales >= 500)  return { nivel: 4, nombreNivel: 'Intermedio' };
-  if (puntosTotales >= 100)  return { nivel: 2, nombreNivel: 'Principiante' };
-  return { nivel: 1, nombreNivel: 'Novato' };
-};

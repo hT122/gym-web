@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { subscribeToChats } from '../../firebase/chat';
+import { Dumbbell, Trophy, User, Flame, MessageCircle, Settings, Info } from 'lucide-react';
 
 export default function Sidebar({ user, userData, onSignOut }) {
   const [totalUnread, setTotalUnread] = useState(0);
@@ -22,12 +23,12 @@ export default function Sidebar({ user, userData, onSignOut }) {
   };
 
   const navItems = [
-    { path: '/',         label: 'Entrenar' },
-    { path: '/ligas',    label: 'Ligas Fantasy' },
-    { path: '/perfil',   label: 'Perfil' },
-    { path: '/calorias', label: 'Calorías' },
-    { path: '/chat',     label: 'Mensajes' },
-    { path: '/ajustes',  label: 'Ajustes' },
+    { path: '/',         label: 'Entrenar',     Icon: Dumbbell },
+    { path: '/ligas',    label: 'Ligas Fantasy', Icon: Trophy },
+    { path: '/calorias', label: 'Calorías',      Icon: Flame },
+    { path: '/chat',     label: 'Mensajes',      Icon: MessageCircle },
+    { path: '/perfil',   label: 'Perfil',        Icon: User },
+    { path: '/ajustes',  label: 'Ajustes',       Icon: Settings },
   ];
 
   const isActive = (path) =>
@@ -57,19 +58,28 @@ export default function Sidebar({ user, userData, onSignOut }) {
         <img src="/logo.png" alt="FGL Logo" className="sidebar-logo-img" />
 
         <div className="menu">
-          {navItems.map(({ path, label }) => (
+          {navItems.map(({ path, label, Icon }) => (
             <button
               key={path}
               onClick={() => ir(path)}
               className={`menu-btn ${isActive(path) ? 'active' : ''}`}
             >
-              {label}
+              <Icon size={16} strokeWidth={2} style={{ flexShrink: 0, opacity: 0.85 }} />
+              <span>{label}</span>
               {path === '/chat' && totalUnread > 0 && (
                 <span className="sidebar-unread-badge">{totalUnread > 99 ? '99+' : totalUnread}</span>
               )}
             </button>
           ))}
         </div>
+
+        <button
+          onClick={() => ir('/about')}
+          className="about-sidebar-btn"
+        >
+          <Info size={14} strokeWidth={2} />
+          About Us
+        </button>
 
         <div className="user-section">
           <img

@@ -65,11 +65,6 @@ export const inicializarUsuario = async (user, overrideName = null) => {
       creadoEn: new Date().toISOString(),
       onboardingCompleto: false,
     });
-  } else {
-    const data = snap.data();
-    if (data.nivel !== undefined || data.nombreNivel !== undefined) {
-      await updateDoc(userRef, { nivel: deleteField(), nombreNivel: deleteField() });
-    }
   }
 };
 

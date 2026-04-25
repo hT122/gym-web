@@ -56,20 +56,21 @@ body {
 
 .menu-btn {
   width: 100%;
-  padding: 12px 16px;
+  padding: 10px 14px;
   background: none;
   color: var(--color-text-2);
   border: none;
   text-align: left;
   cursor: pointer;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   border-radius: 10px;
-  margin-bottom: 4px;
-  transition: 0.15s;
+  margin-bottom: 2px;
+  transition: background 0.15s, color 0.15s;
   font-family: 'Plus Jakarta Sans', sans-serif;
   display: flex;
   align-items: center;
+  gap: 10px;
 }
 
 .menu-btn:hover { background: var(--color-surface-2); color: var(--color-text); }
@@ -77,6 +78,13 @@ body {
 .menu-btn.active {
   background: var(--color-accent);
   color: var(--color-accent-fg);
+  box-shadow: inset 3px 0 0 #e05555;
+}
+
+.sidebar-divider {
+  height: 1px;
+  background: var(--color-border-subtle);
+  margin: 10px 4px;
 }
 
 .sidebar-unread-badge {
@@ -209,11 +217,11 @@ body {
   padding: 16px;
   margin-bottom: 10px;
   cursor: pointer;
-  transition: 0.15s;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+  transition: box-shadow 0.15s, transform 0.15s;
+  box-shadow: 0 1px 6px rgba(20, 14, 8, 0.06);
 }
 
-.pr-card:hover { box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09); }
+.pr-card:hover { box-shadow: 0 4px 16px rgba(20, 14, 8, 0.10); transform: translateY(-1px); }
 
 .pr-card--active {
   background: var(--color-surface-2);
@@ -290,7 +298,7 @@ body {
   position: relative;
   width: 96px;
   height: 96px;
-  border-radius: 50%;
+  border-radius: 20px;
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -298,16 +306,16 @@ body {
 .avatar-upload-img {
   width: 96px;
   height: 96px;
-  border-radius: 50%;
+  border-radius: 20px;
   object-fit: cover;
-  border: 2px solid var(--color-border);
+  border: 1.5px solid var(--color-border);
   display: block;
 }
 
 .avatar-upload-overlay {
   position: absolute;
   inset: 0;
-  border-radius: 50%;
+  border-radius: 20px;
   background: rgba(0, 0, 0, 0.5);
   color: #fff;
   font-size: 11px;
@@ -340,11 +348,11 @@ body {
   padding: 12px 14px;
   background: var(--color-surface);
   border-radius: 12px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.05);
-  transition: box-shadow 0.15s;
+  box-shadow: 0 1px 6px rgba(20, 14, 8, 0.06);
+  transition: box-shadow 0.15s, transform 0.15s;
 }
 
-.plantilla-item:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.09); }
+.plantilla-item:hover { box-shadow: 0 4px 16px rgba(20, 14, 8, 0.10); transform: translateY(-1px); }
 
 .plantilla-info {
   flex: 1;
@@ -418,21 +426,46 @@ body {
   to   { opacity: 1; transform: translateX(-50%) translateY(0); }
 }
 
+.about-sidebar-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 14px;
+  background: none;
+  border: none;
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  margin-bottom: 8px;
+  transition: color 0.15s, background 0.15s;
+}
+
+.about-sidebar-btn:hover {
+  color: var(--color-text);
+  background: var(--color-surface-2);
+}
+
 .user-section {
   display: flex;
   align-items: center;
   gap: 10px;
-  padding: 14px;
+  padding: 12px 14px;
   background: var(--color-surface-2);
+  border: 1px solid var(--color-border-subtle);
   border-radius: 12px;
 }
 
 .user-avatar {
   width: 36px;
   height: 36px;
-  border-radius: 50%;
-  border: 2px solid var(--color-border);
+  border-radius: 10px;
+  border: 1.5px solid var(--color-border);
   flex-shrink: 0;
+  object-fit: cover;
 }
 
 .user-info { min-width: 0; }
@@ -580,7 +613,7 @@ body {
   background: var(--color-surface);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 2px 12px rgba(20, 14, 8, 0.07);
   margin-bottom: 0;
 }
 
@@ -710,7 +743,7 @@ body {
   background: var(--color-surface);
   border-radius: 14px;
   padding: 16px;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 6px rgba(20, 14, 8, 0.06);
 }
 
 .exercise-item-header {
@@ -841,7 +874,7 @@ body {
   background: var(--color-surface);
   border-radius: 14px;
   padding: 16px;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 1px 6px rgba(20, 14, 8, 0.06);
 }
 
 .historial-item-date {
@@ -948,7 +981,7 @@ body {
 .liga-action-btn.secondary:hover:not(:disabled) { background: var(--color-surface-2); transform: none; }
 
 .liga-card { cursor: pointer; transition: box-shadow 0.2s, transform 0.15s; }
-.liga-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.12); transform: translateY(-2px); }
+.liga-card:hover { box-shadow: 0 8px 32px rgba(20, 14, 8, 0.12); transform: translateY(-2px); }
 
 .liga-nombre {
   font-family: 'Manrope', sans-serif;
@@ -1098,7 +1131,7 @@ body {
   min-height: 0;
   background: var(--color-surface);
   border-radius: 16px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 12px rgba(20, 14, 8, 0.07);
   overflow: hidden;
 }
 
@@ -1228,7 +1261,8 @@ body {
 .chat-header-avatar {
   width: 38px;
   height: 38px;
-  border-radius: 50%;
+  border-radius: 10px;
+  object-fit: cover;
 }
 
 .chat-header-name {
@@ -1344,11 +1378,12 @@ body {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: opacity 0.15s;
+  transition: opacity 0.15s, transform 0.15s;
 }
 
-.chat-send-btn:hover { opacity: 0.8; }
-.chat-send-btn:disabled { opacity: 0.3; cursor: default; }
+.chat-send-btn:hover { opacity: 0.85; transform: scale(1.04); }
+.chat-send-btn:active { transform: scale(0.96); }
+.chat-send-btn:disabled { opacity: 0.3; cursor: default; transform: none; }
 
 /* Chat menu */
 .chat-menu-wrapper {
@@ -1948,9 +1983,10 @@ body {
 .profile-avatar {
   width: 64px;
   height: 64px;
-  border-radius: 50%;
-  border: 2px solid var(--color-border);
+  border-radius: 16px;
+  border: 1.5px solid var(--color-border);
   flex-shrink: 0;
+  object-fit: cover;
 }
 
 .profile-name {
@@ -2011,11 +2047,15 @@ body {
 }
 
 .stat-card {
-  background: var(--color-surface-2);
-  border-radius: 12px;
-  padding: 16px;
+  background: none;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 18px 16px;
   text-align: center;
+  transition: border-color 0.15s;
 }
+
+.stat-card:hover { border-color: var(--color-text-faint); }
 
 .stat-value {
   font-family: 'Manrope', sans-serif;
@@ -2056,7 +2096,7 @@ body {
 .friend-item:hover { background: var(--color-surface-hover); }
 
 .friend-avatar {
-  border-radius: 50%;
+  border-radius: 8px;
   border: 1px solid var(--color-border);
   flex-shrink: 0;
   object-fit: cover;
@@ -2469,13 +2509,13 @@ body {
   background: var(--color-surface);
   border-radius: 16px;
   padding: 24px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 12px rgba(20, 14, 8, 0.06);
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .about-feature-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.10);
+  box-shadow: 0 8px 32px rgba(20, 14, 8, 0.11);
 }
 
 .about-feature-icon { font-size: 28px; display: block; margin-bottom: 12px; }
@@ -2502,7 +2542,7 @@ body {
   background: var(--color-surface);
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.05);
+  box-shadow: 0 2px 12px rgba(20, 14, 8, 0.06);
 }
 
 .about-score-item {
@@ -2674,4 +2714,116 @@ body {
 @keyframes typing-bounce {
   0%, 80%, 100% { transform: translateY(0); }
   40%           { transform: translateY(-5px); }
+}
+
+/* ===== MOBILE RESPONSIVE ===== */
+@media (max-width: 768px) {
+
+  /* Main content padding */
+  .main-content {
+    padding: 16px 16px 24px 16px;
+  }
+
+  .header {
+    margin-bottom: 16px;
+  }
+
+  .header h1 {
+    font-size: 20px;
+    letter-spacing: -0.5px;
+  }
+
+  /* Entrenar - stack columns */
+  .entrenar-layout {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .entrenar-panel-left {
+    max-width: 100%;
+    padding-right: 0;
+  }
+
+  .historial-panel {
+    width: 100%;
+  }
+
+  /* PRs - stack columns */
+  .prs-layout {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .prs-list-panel {
+    width: 100%;
+    overflow-y: visible;
+  }
+
+  .prs-chart-panel {
+    min-height: 300px;
+  }
+
+  /* Perfil - stack columns */
+  .perfil-layout {
+    flex-direction: column;
+  }
+
+  .perfil-sidebar {
+    width: 100%;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  /* Calorías - stack columns */
+  .calc-layout {
+    flex-direction: column;
+  }
+
+  .calc-form-card {
+    max-width: 100%;
+  }
+
+  .calc-result-number {
+    font-size: 48px;
+  }
+
+  /* Chat - stack columns */
+  .chat-layout {
+    flex-direction: column;
+    border-radius: 12px;
+  }
+
+  .chat-sidebar {
+    width: 100%;
+    max-height: 220px;
+    border-right: none;
+    border-bottom: 1px solid var(--color-border-subtle);
+  }
+
+  /* Ligas */
+  .ligas-content {
+    max-width: 100%;
+  }
+
+  /* Tracker */
+  .tracker-big-num {
+    font-size: 28px;
+  }
+
+  /* Cards */
+  .workout-card {
+    padding: 16px;
+  }
+
+  /* Ajustes */
+  .ajustes-layout {
+    max-width: 100%;
+  }
+
+  /* About sidebar btn */
+  .about-sidebar-btn {
+    display: none;
+  }
 }

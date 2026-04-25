@@ -5,6 +5,7 @@ import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { inicializarUsuario, subscribeToUserDoc, obtenerUsuario } from './firebase/users';
 import LoginPage from './pages/LoginPage';
 import AboutPage from './pages/AboutPage';
+import AboutUs from './pages/AboutUs';
 import EntrenarPage from './pages/EntrenarPage';
 import LigasPage from './pages/LigasPage';
 import PerfilPage from './pages/PerfilPage';
@@ -71,7 +72,6 @@ function AppShell({ user, userData, refrescarUsuario, darkMode, onToggleDark }) 
           <Route path="/chat" element={<ChatPage user={user} userData={userData} />} />
           <Route path="/prs" element={<PRsPage user={user} />} />
           <Route path="/ajustes" element={<AjustesPage user={user} userData={userData} darkMode={darkMode} onToggleDark={onToggleDark} />} />
-          <Route path="/about" element={<AboutPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
@@ -121,7 +121,7 @@ function App() {
   if (!user) return (
     <BrowserRouter>
       <Routes>
-        <Route path="/about" element={<AboutPage />} />
+        <Route path="/about" element={<AboutUs />} />
         <Route path="*" element={<LoginPage darkMode={darkMode} onToggleDark={() => setDarkMode((d) => !d)} />} />
       </Routes>
     </BrowserRouter>
@@ -129,13 +129,18 @@ function App() {
 
   return (
     <BrowserRouter>
-      <AppShell
-        user={user}
-        userData={userData}
-        refrescarUsuario={refrescarUsuario}
-        darkMode={darkMode}
-        onToggleDark={() => setDarkMode((d) => !d)}
-      />
+      <Routes>
+        <Route path="/about" element={<AboutUs />} />
+        <Route path="*" element={
+          <AppShell
+            user={user}
+            userData={userData}
+            refrescarUsuario={refrescarUsuario}
+            darkMode={darkMode}
+            onToggleDark={() => setDarkMode((d) => !d)}
+          />
+        } />
+      </Routes>
     </BrowserRouter>
   );
 }

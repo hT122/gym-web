@@ -33,7 +33,7 @@ export default function AboutPage() {
           </p>
           <p className="text-lg mb-8" style={{ color: 'var(--color-text-2)', lineHeight: 1.8 }}>
             Desarrollado como Trabajo de Fin de Grado, combina seguimiento deportivo real con la dinámica de las ligas fantasy,
-            un asistente de IA personalizado, seguimiento nutricional y mensajería en tiempo real entre compañeros de liga.
+            seguimiento nutricional y mensajería en tiempo real entre compañeros de liga.
           </p>
         </div>
       </ScrollExpandMedia>
