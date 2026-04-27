@@ -4,7 +4,6 @@ import { auth } from './firebase/config';
 import { onAuthStateChanged, signOut } from 'firebase/auth';
 import { inicializarUsuario, subscribeToUserDoc, obtenerUsuario } from './firebase/users';
 import LoginPage from './pages/LoginPage';
-import AboutPage from './pages/AboutPage';
 import AboutUs from './pages/AboutUs';
 import EntrenarPage from './pages/EntrenarPage';
 import LigasPage from './pages/LigasPage';
