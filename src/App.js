@@ -47,7 +47,7 @@ function MoonIcon() {
   );
 }
 
-function AppShell({ user, userData, refrescarUsuario, darkMode, onToggleDark }) {
+function AppShell({ user, userData, refrescarUsuario, darkMode, onToggleDark, deferredInstall, onInstalled }) {
   const location = useLocation();
   const title = TITLES[location.pathname] || '';
 
@@ -60,7 +60,7 @@ function AppShell({ user, userData, refrescarUsuario, darkMode, onToggleDark }) 
       <main className="main-content">
         <header className="header">
           <h1>{title}</h1>
-          <button className="dark-mode-toggle" onClick={onToggleDark} aria-label="Cambiar tema">
+          <button className="dark-mode-toggle" onClick={onToggleDark} aria-label={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}>
             {darkMode ? <SunIcon /> : <MoonIcon />}
           </button>
         </header>
@@ -71,7 +71,7 @@ function AppShell({ user, userData, refrescarUsuario, darkMode, onToggleDark }) 
           <Route path="/calorias" element={<CaloriasPage user={user} userData={userData} />} />
           <Route path="/chat" element={<ChatPage user={user} userData={userData} />} />
           <Route path="/prs" element={<PRsPage user={user} />} />
-          <Route path="/ajustes" element={<AjustesPage user={user} userData={userData} darkMode={darkMode} onToggleDark={onToggleDark} />} />
+          <Route path="/ajustes" element={<AjustesPage user={user} userData={userData} darkMode={darkMode} onToggleDark={onToggleDark} deferredInstall={deferredInstall} onInstalled={onInstalled} />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
@@ -82,16 +82,41 @@ function AppShell({ user, userData, refrescarUsuario, darkMode, onToggleDark }) 
 function App() {
   const [user, setUser] = useState(undefined);
   const [userData, setUserData] = useState(null);
-  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
+  const [darkMode, setDarkMode] = useState(() => {
+    const stored = localStorage.getItem('darkMode');
+    if (stored !== null) return stored === 'true';
+    return window.matchMedia?.('(prefers-color-scheme: dark)').matches ?? false;
+  });
+  const [deferredInstall, setDeferredInstall] = useState(null);
 
   useEffect(() => {
-    if (darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('darkMode', darkMode);
+    document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
+
+  // Follow system preference when user hasn't manually overridden
+  useEffect(() => {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const handler = (e) => {
+      if (localStorage.getItem('darkMode') === null) setDarkMode(e.matches);
+    };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
+
+  // Capture PWA install prompt before browser dismisses it
+  useEffect(() => {
+    const handler = (e) => { e.preventDefault(); setDeferredInstall(e); };
+    window.addEventListener('beforeinstallprompt', handler);
+    return () => window.removeEventListener('beforeinstallprompt', handler);
+  }, []);
+
+  const toggleDark = () => {
+    setDarkMode((d) => {
+      const next = !d;
+      localStorage.setItem('darkMode', next);
+      return next;
+    });
+  };
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async (currentUser) => {
@@ -122,7 +147,7 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/about" element={<AboutUs />} />
-        <Route path="*" element={<LoginPage darkMode={darkMode} onToggleDark={() => setDarkMode((d) => !d)} />} />
+        <Route path="*" element={<LoginPage darkMode={darkMode} onToggleDark={toggleDark} />} />
       </Routes>
     </BrowserRouter>
   );
@@ -137,7 +162,9 @@ function App() {
             userData={userData}
             refrescarUsuario={refrescarUsuario}
             darkMode={darkMode}
-            onToggleDark={() => setDarkMode((d) => !d)}
+            onToggleDark={toggleDark}
+            deferredInstall={deferredInstall}
+            onInstalled={() => setDeferredInstall(null)}
           />
         } />
       </Routes>

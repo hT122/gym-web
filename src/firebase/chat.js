@@ -94,6 +94,26 @@ export const subscribeToChat = (chatId, callback) => {
   });
 };
 
+export const subscribeToLeagueMessages = (ligaId, callback) => {
+  const q = query(
+    collection(db, 'leagues', ligaId, 'messages'),
+    orderBy('timestamp', 'asc'),
+    limitToLast(100)
+  );
+  return onSnapshot(q, (snap) => {
+    callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+  });
+};
+
+export const sendLeagueMessage = async (ligaId, senderId, senderName, text) => {
+  await addDoc(collection(db, 'leagues', ligaId, 'messages'), {
+    senderId,
+    senderName,
+    text: text.trim(),
+    timestamp: new Date().toISOString(),
+  });
+};
+
 export const subscribeToChats = (uid, callback) => {
   const q = query(collection(db, 'chats'), where('members', 'array-contains', uid));
   return onSnapshot(q, (snap) => {

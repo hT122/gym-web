@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useState } from 'react';
+import LeagueChat from '../LeagueChat/LeagueChat';
 
 export default function LeaderboardView({
   liga,
@@ -7,8 +8,12 @@ export default function LeaderboardView({
   setPeriodoLeaderboard,
   cargandoLeaderboard,
   userId,
+  user,
+  userData,
   onVolver,
 }) {
+  const [tab, setTab] = useState('ranking');
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
@@ -24,43 +29,66 @@ export default function LeaderboardView({
         </button>
       </div>
 
-      <div className="periodo-toggle">
+      <div className="historial-tabs">
         <button
-          className={`periodo-btn ${periodoLeaderboard === 'semana' ? 'active' : ''}`}
-          onClick={() => setPeriodoLeaderboard('semana')}
+          className={`historial-tab ${tab === 'ranking' ? 'historial-tab--active' : ''}`}
+          onClick={() => setTab('ranking')}
         >
-          Semanal
+          Ranking
         </button>
         <button
-          className={`periodo-btn ${periodoLeaderboard === 'mes' ? 'active' : ''}`}
-          onClick={() => setPeriodoLeaderboard('mes')}
+          className={`historial-tab ${tab === 'chat' ? 'historial-tab--active' : ''}`}
+          onClick={() => setTab('chat')}
         >
-          Mensual
+          Chat del grupo
         </button>
       </div>
 
-      {cargandoLeaderboard ? (
-        <p className="empty-state">Cargando ranking...</p>
-      ) : (
-        <div className="workout-card" style={{ padding: '0', overflow: 'hidden' }}>
-          {leaderboard.map((entry, i) => (
-            <div
-              key={entry.memberId}
-              className={`leaderboard-row ${entry.userId === userId ? 'leaderboard-self' : ''}`}
+      {tab === 'ranking' && (
+        <>
+          <div className="periodo-toggle">
+            <button
+              className={`periodo-btn ${periodoLeaderboard === 'semana' ? 'active' : ''}`}
+              onClick={() => setPeriodoLeaderboard('semana')}
             >
-              <span className="leaderboard-pos">
-                {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}
-              </span>
-              <span className="leaderboard-name">{entry.userName}</span>
-              <span className="leaderboard-pts">{entry.puntosEnPeriodo} pts</span>
+              Semanal
+            </button>
+            <button
+              className={`periodo-btn ${periodoLeaderboard === 'mes' ? 'active' : ''}`}
+              onClick={() => setPeriodoLeaderboard('mes')}
+            >
+              Mensual
+            </button>
+          </div>
+
+          {cargandoLeaderboard ? (
+            <p className="empty-state">Cargando ranking...</p>
+          ) : (
+            <div className="workout-card" style={{ padding: '0', overflow: 'hidden' }}>
+              {leaderboard.map((entry, i) => (
+                <div
+                  key={entry.memberId}
+                  className={`leaderboard-row ${entry.userId === userId ? 'leaderboard-self' : ''}`}
+                >
+                  <span className="leaderboard-pos">
+                    {i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : `${i + 1}.`}
+                  </span>
+                  <span className="leaderboard-name">{entry.userName}</span>
+                  <span className="leaderboard-pts">{entry.puntosEnPeriodo} pts</span>
+                </div>
+              ))}
+              {leaderboard.length === 0 && (
+                <p className="empty-state" style={{ padding: '24px' }}>
+                  Nadie ha entrenado en este periodo todavía.
+                </p>
+              )}
             </div>
-          ))}
-          {leaderboard.length === 0 && (
-            <p className="empty-state" style={{ padding: '24px' }}>
-              Nadie ha entrenado en este periodo todavía.
-            </p>
           )}
-        </div>
+        </>
+      )}
+
+      {tab === 'chat' && user && (
+        <LeagueChat ligaId={liga.id} user={user} userData={userData} />
       )}
     </div>
   );

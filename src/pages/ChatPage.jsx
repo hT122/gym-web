@@ -6,14 +6,14 @@ export default function ChatPage({ user, userData }) {
   const [chatActivo, setChatActivo] = useState(null);
 
   return (
-    <div className="chat-layout">
+    <div className={`chat-layout ${chatActivo ? 'chat-layout--chat-open' : ''}`}>
       <ChatList
         user={user}
         userData={userData}
         chatActivo={chatActivo}
         onSelectChat={setChatActivo}
       />
-      <ChatWindow user={user} userData={userData} chatInfo={chatActivo} />
+      <ChatWindow user={user} userData={userData} chatInfo={chatActivo} onBack={() => setChatActivo(null)} />
     </div>
   );
 }

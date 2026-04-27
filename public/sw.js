@@ -1,4 +1,4 @@
-const CACHE = 'gym-fantasy-v1';
+const CACHE = 'gym-fantasy-v2';
 
 const PRE_CACHE = ['/', '/index.html', '/logo192.png', '/logo512.png', '/manifest.json'];
 
@@ -41,7 +41,7 @@ self.addEventListener('fetch', (e) => {
           caches.open(CACHE).then((c) => c.put(request, clone));
           return res;
         })
-        .catch(() => caches.match('/index.html'))
+        .catch(() => caches.match('/index.html').then((cached) => cached || fetch('/index.html')))
     );
     return;
   }

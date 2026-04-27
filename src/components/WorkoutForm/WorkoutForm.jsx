@@ -1,6 +1,68 @@
 import React, { useState, useRef, useEffect } from 'react';
 import EJERCICIOS_DISPONIBLES from '../../constants/ejercicios';
 
+const DURACIONES = [60, 90, 120, 180];
+
+function RestTimer({ duration, onChangeDuration, onDismiss }) {
+  const [secondsLeft, setSecondsLeft] = useState(duration);
+
+  useEffect(() => { setSecondsLeft(duration); }, [duration]);
+
+  useEffect(() => {
+    if (secondsLeft <= 0) {
+      navigator.vibrate?.([200, 100, 200]);
+      return;
+    }
+    const t = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
+    return () => clearTimeout(t);
+  }, [secondsLeft]);
+
+  const done = secondsLeft <= 0;
+  const r = 36;
+  const circ = 2 * Math.PI * r;
+  const progress = done ? 1 : secondsLeft / duration;
+  const mins = Math.floor(secondsLeft / 60);
+  const secs = String(secondsLeft % 60).padStart(2, '0');
+
+  return (
+    <div className={`rest-timer ${done ? 'rest-timer--done' : ''}`}>
+      <div className="rest-timer-ring-wrapper">
+        <svg width="88" height="88" viewBox="0 0 88 88" aria-hidden="true">
+          <circle cx="44" cy="44" r={r} fill="none" stroke="var(--color-border-subtle)" strokeWidth="5" />
+          <circle
+            cx="44" cy="44" r={r}
+            fill="none"
+            stroke={done ? 'var(--color-accent)' : 'var(--color-text)'}
+            strokeWidth="5"
+            strokeLinecap="round"
+            strokeDasharray={circ}
+            strokeDashoffset={circ * (1 - progress)}
+            style={{ transform: 'rotate(-90deg)', transformOrigin: 'center', transition: 'stroke-dashoffset 1s linear' }}
+          />
+        </svg>
+        <div className="rest-timer-countdown">{done ? '✓' : `${mins}:${secs}`}</div>
+      </div>
+      <div className="rest-timer-body">
+        <p className="rest-timer-label">{done ? '¡Listo para la siguiente serie!' : 'Tiempo de descanso'}</p>
+        <div className="rest-timer-presets">
+          {DURACIONES.map((d) => (
+            <button
+              key={d}
+              className={`rest-preset-btn ${duration === d ? 'active' : ''}`}
+              onClick={() => onChangeDuration(d)}
+            >
+              {d < 60 ? `${d}s` : `${d / 60}min`}
+            </button>
+          ))}
+        </div>
+        <button className="rest-timer-dismiss" onClick={onDismiss}>
+          {done ? 'Continuar' : 'Saltar'}
+        </button>
+      </div>
+    </div>
+  );
+}
+
 export default function WorkoutForm({
   ejercicio,
   setEjercicio,
@@ -17,6 +79,8 @@ export default function WorkoutForm({
   const [busqueda, setBusqueda] = useState('');
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const searchRef = useRef(null);
+  const [timerActive, setTimerActive] = useState(false);
+  const [timerDuration, setTimerDuration] = useState(90);
 
   const ejerciciosFiltrados = EJERCICIOS_DISPONIBLES.filter((ej) =>
     ej.toLowerCase().includes(busqueda.toLowerCase())
@@ -36,7 +100,10 @@ export default function WorkoutForm({
     setDropdownOpen(false);
   };
 
-  const agregarSerie = () => setSeries([...series, { peso: '', repes: '' }]);
+  const agregarSerie = () => {
+    setSeries([...series, { peso: '', repes: '' }]);
+    setTimerActive(true);
+  };
 
   const eliminarSerie = (index) => setSeries(series.filter((_, i) => i !== index));
 
@@ -48,6 +115,14 @@ export default function WorkoutForm({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+      {timerActive && (
+        <RestTimer
+          duration={timerDuration}
+          onChangeDuration={(d) => { setTimerDuration(d); setTimerActive(true); }}
+          onDismiss={() => setTimerActive(false)}
+        />
+      )}
+
       {ejerciciosDelEntrenamiento.map((ej, idx) => (
         <div key={idx} className="exercise-item">
           <div className="exercise-item-header">

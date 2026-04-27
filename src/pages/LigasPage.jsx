@@ -58,6 +58,8 @@ export default function LigasPage({ user, userData }) {
           setPeriodoLeaderboard={setPeriodoLeaderboard}
           cargandoLeaderboard={cargandoLeaderboard}
           userId={user.uid}
+          user={user}
+          userData={userData}
           onVolver={() => setLigaActiva(null)}
         />
       ) : (

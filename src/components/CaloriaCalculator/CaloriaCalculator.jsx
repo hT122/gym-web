@@ -157,7 +157,7 @@ export default function CaloriaCalculator({ onGuardarObjetivo }) {
 
           <div>
             <label className="label">OBJETIVO</label>
-            <div style={{ display: 'flex', gap: 10 }}>
+            <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
               {OBJETIVOS.map((o) => (
                 <button
                   key={o.value}

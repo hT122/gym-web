@@ -88,7 +88,7 @@ function ChatMenu({ onClear, onBlock, onUnblock, isBlocked }) {
   );
 }
 
-export default function ChatWindow({ user, userData, chatInfo }) {
+export default function ChatWindow({ user, userData, chatInfo, onBack }) {
   const [messages, setMessages] = useState([]);
   const [mensajesAntiguos, setMensajesAntiguos] = useState([]);
   const [hasMasAntiguos, setHasMasAntiguos] = useState(false);
@@ -227,6 +227,11 @@ export default function ChatWindow({ user, userData, chatInfo }) {
   return (
     <div className="chat-window">
       <div className="chat-window-header">
+        <button className="chat-back-btn" onClick={onBack} aria-label="Volver">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M19 12H5M12 5l-7 7 7 7"/>
+          </svg>
+        </button>
         <img
           src={`https://ui-avatars.com/api/?name=${encodeURIComponent(chatInfo.friendName)}&background=111&color=fff&size=80`}
           alt={chatInfo.friendName}

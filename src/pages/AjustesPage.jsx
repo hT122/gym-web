@@ -26,13 +26,20 @@ function comprimirImagen(file, maxSize = 256) {
   });
 }
 
-export default function AjustesPage({ user, userData, darkMode, onToggleDark }) {
+export default function AjustesPage({ user, userData, darkMode, onToggleDark, deferredInstall, onInstalled }) {
   const [nombre,    setNombre]    = useState(userData?.displayName || '');
   const [bio,       setBio]       = useState(userData?.bio || '');
   const [guardando, setGuardando] = useState(false);
   const [subiendoFoto, setSubiendoFoto] = useState(false);
   const [fotoPreview, setFotoPreview]   = useState(user.photoURL || null);
   const fileInputRef = useRef(null);
+
+  const handleInstall = async () => {
+    if (!deferredInstall) return;
+    deferredInstall.prompt();
+    const { outcome } = await deferredInstall.userChoice;
+    if (outcome === 'accepted') onInstalled?.();
+  };
 
   const handleFotoClick = () => fileInputRef.current?.click();
 
@@ -145,6 +152,34 @@ export default function AjustesPage({ user, userData, darkMode, onToggleDark }) 
         </form>
       </div>
 
+      <div className="workout-card ajustes-card">
+        <h3 className="card-title">Apariencia</h3>
+        <div className="ajustes-row">
+          <div>
+            <p className="ajustes-row-label">Modo oscuro</p>
+            <p className="ajustes-row-sub">Activo: sigue tu preferencia del sistema</p>
+          </div>
+          <button
+            className={`ajustes-toggle ${darkMode ? 'ajustes-toggle--on' : ''}`}
+            onClick={onToggleDark}
+            aria-label={darkMode ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
+          >
+            <span className="ajustes-toggle-knob" />
+          </button>
+        </div>
+      </div>
+
+      {deferredInstall && (
+        <div className="workout-card ajustes-card">
+          <h3 className="card-title">Instalar aplicación</h3>
+          <p style={{ fontSize: 14, color: 'var(--color-text-muted)', marginBottom: 16, margin: '0 0 16px' }}>
+            Instala Gym Fantasy en tu dispositivo para acceso rápido y uso sin conexión.
+          </p>
+          <button className="finish-btn" onClick={handleInstall}>
+            Instalar app
+          </button>
+        </div>
+      )}
     </div>
   );
 }

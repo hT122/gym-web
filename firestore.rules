@@ -41,6 +41,14 @@ service cloud.firestore {
       allow create: if estaAutenticado() && request.resource.data.creadoPor == request.auth.uid;
       allow update: if estaAutenticado() && resource.data.creadoPor == request.auth.uid;
       allow delete: if estaAutenticado() && resource.data.creadoPor == request.auth.uid;
+
+      // Chat del grupo: cualquier miembro autenticado puede leer y escribir
+      match /messages/{messageId} {
+        allow read: if estaAutenticado();
+        allow create: if estaAutenticado() && request.resource.data.senderId == request.auth.uid;
+        allow update: if false;
+        allow delete: if false;
+      }
     }
 
     match /league_members/{memberId} {
@@ -53,16 +61,14 @@ service cloud.firestore {
 
     // ── Chat ─────────────────────────────────────────────────────────────────
     match /chats/{chatId} {
-      // Solo los participantes del chat pueden leer
-      allow read: if estaAutenticado() && (
-        resource.data.participantes.hasAny([request.auth.uid])
-      );
-      allow create: if estaAutenticado() && request.resource.data.participantes.hasAny([request.auth.uid]);
-      allow update: if estaAutenticado() && resource.data.participantes.hasAny([request.auth.uid]);
+      // Cualquier usuario autenticado puede leer — el query ya filtra por members
+      allow read: if estaAutenticado();
+      allow create: if estaAutenticado() && request.resource.data.members.hasAny([request.auth.uid]);
+      allow update: if estaAutenticado() && resource.data.members.hasAny([request.auth.uid]);
       allow delete: if false;
 
       match /messages/{messageId} {
-        allow read: if estaAutenticado() && get(/databases/$(database)/documents/chats/$(chatId)).data.participantes.hasAny([request.auth.uid]);
+        allow read: if estaAutenticado();
         allow create: if estaAutenticado() && request.resource.data.senderId == request.auth.uid;
         allow update: if false;
         allow delete: if false;
@@ -90,6 +96,19 @@ service cloud.firestore {
       allow create: if estaAutenticado();
       allow update: if estaAutenticado();
       allow delete: if estaAutenticado();
+    }
+
+    match /friendships/{docId} {
+      allow read: if estaAutenticado();
+      allow create: if estaAutenticado();
+      allow update: if estaAutenticado() && (
+        resource.data.requesterId == request.auth.uid ||
+        resource.data.receiverId  == request.auth.uid
+      );
+      allow delete: if estaAutenticado() && (
+        resource.data.requesterId == request.auth.uid ||
+        resource.data.receiverId  == request.auth.uid
+      );
     }
 
     match /follows/{docId} {

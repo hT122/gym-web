@@ -102,7 +102,7 @@ export default function LoginForm({ darkMode, onToggleDark }) {
               cooldownTime={0.4}
               style={{
                 fontFamily: 'Manrope, sans-serif',
-                fontSize: '58px',
+                fontSize: 'clamp(32px, 12vw, 58px)',
                 fontWeight: 900,
                 letterSpacing: '-2px',
                 color: 'var(--color-text)',

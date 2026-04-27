@@ -2716,6 +2716,26 @@ body {
   40%           { transform: translateY(-5px); }
 }
 
+/* ===== CHAT BACK BUTTON (mobile only) ===== */
+.chat-back-btn {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  color: var(--color-text-2);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 8px;
+  margin-right: 4px;
+  flex-shrink: 0;
+  transition: color 0.15s, background 0.15s;
+}
+.chat-back-btn:hover { color: var(--color-text); background: var(--color-surface-2); }
+
 /* ===== MOBILE RESPONSIVE ===== */
 @media (max-width: 768px) {
 
@@ -2789,7 +2809,16 @@ body {
     font-size: 48px;
   }
 
-  /* Chat - stack columns */
+  /* calc-row: wrap inputs on small screens */
+  .calc-row {
+    flex-wrap: wrap;
+  }
+
+  .calc-row .input-group {
+    min-width: calc(50% - 6px);
+  }
+
+  /* Chat - full screen when active, list visible when idle */
   .chat-layout {
     flex-direction: column;
     border-radius: 12px;
@@ -2797,9 +2826,24 @@ body {
 
   .chat-sidebar {
     width: 100%;
-    max-height: 220px;
+    max-height: 260px;
     border-right: none;
     border-bottom: 1px solid var(--color-border-subtle);
+    flex-shrink: 0;
+  }
+
+  /* When a chat is open on mobile: hide the list, show only the window */
+  .chat-layout--chat-open .chat-sidebar {
+    display: none;
+  }
+
+  .chat-layout--chat-open .chat-window {
+    flex: 1;
+    min-height: 0;
+  }
+
+  .chat-back-btn {
+    display: flex;
   }
 
   /* Ligas */
@@ -2822,8 +2866,320 @@ body {
     max-width: 100%;
   }
 
+  /* Login card */
+  .login-card {
+    padding: 20px 16px;
+  }
+
   /* About sidebar btn */
   .about-sidebar-btn {
     display: none;
   }
+}
+
+/* ── Rest Timer ───────────────────────────────────────────────────────────── */
+.rest-timer {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 20px;
+  border-radius: 16px;
+  background: var(--color-surface);
+  border: 1.5px solid var(--color-border-subtle);
+}
+
+.rest-timer--done {
+  border-color: var(--color-accent);
+  background: var(--color-surface-2);
+}
+
+.rest-timer-ring-wrapper {
+  position: relative;
+  width: 88px;
+  height: 88px;
+  flex-shrink: 0;
+}
+
+.rest-timer-countdown {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 17px;
+  font-weight: 800;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.rest-timer-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  flex: 1;
+}
+
+.rest-timer-label {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text-2);
+  margin: 0;
+  letter-spacing: 0.3px;
+}
+
+.rest-timer-presets {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.rest-preset-btn {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 99px;
+  border: 1.5px solid var(--color-border-subtle);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+  letter-spacing: 0.5px;
+}
+
+.rest-preset-btn.active,
+.rest-preset-btn:hover {
+  border-color: var(--color-text);
+  color: var(--color-text);
+}
+
+.rest-timer-dismiss {
+  align-self: flex-start;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  padding: 6px 14px;
+  border-radius: 8px;
+  border: 1.5px solid var(--color-border-subtle);
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.rest-timer-dismiss:hover {
+  border-color: var(--color-text);
+  color: var(--color-text);
+}
+
+/* ── Barcode Scanner ──────────────────────────────────────────────────────── */
+.barcode-scanner {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.barcode-viewfinder {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4/3;
+  max-height: 220px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+}
+
+.barcode-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.barcode-reticle {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 60%;
+  height: 50%;
+  border: 2.5px solid rgba(255,255,255,0.8);
+  border-radius: 8px;
+  box-shadow: 0 0 0 1000px rgba(0,0,0,0.35);
+}
+
+.barcode-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  padding: 12px;
+}
+
+.barcode-overlay--hint {
+  background: rgba(0,0,0,0.7);
+  font-size: 12px;
+}
+
+.barcode-error {
+  font-size: 12px;
+  color: var(--color-danger-text);
+  margin: 0;
+  padding: 8px 12px;
+  background: var(--color-danger-bg);
+  border-radius: 8px;
+}
+
+.barcode-manual-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.barcode-scan-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-border-subtle);
+  background: var(--color-surface);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.barcode-scan-btn:hover {
+  border-color: var(--color-text);
+  color: var(--color-text);
+}
+
+/* ── Macro goal editor ────────────────────────────────────────────────────── */
+.macro-goal-editor {
+  margin-top: 12px;
+}
+
+.macro-goal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.macro-goal-field {}
+
+.tracker-edit-goals-btn {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: var(--color-text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 0.15s;
+}
+
+.tracker-edit-goals-btn:hover { color: var(--color-text); }
+
+.tracker-no-goal-link {
+  background: none;
+  border: none;
+  color: var(--color-accent);
+  font-weight: 700;
+  font-size: inherit;
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── League chat ──────────────────────────────────────────────────────────── */
+.league-chat {
+  display: flex;
+  flex-direction: column;
+  height: 480px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border-subtle);
+}
+
+.league-chat-messages {
+  flex: 1;
+}
+
+.league-msg-sender {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--color-text-muted);
+  margin: 0 0 3px 12px;
+  letter-spacing: 0.3px;
+}
+
+/* ── Ajustes: dark mode toggle & rows ─────────────────────────────────────── */
+.ajustes-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.ajustes-row-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-text);
+  margin: 0 0 2px;
+}
+
+.ajustes-row-sub {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.ajustes-toggle {
+  width: 44px;
+  height: 26px;
+  border-radius: 99px;
+  border: 1.5px solid var(--color-border-subtle);
+  background: var(--color-surface-2);
+  cursor: pointer;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.ajustes-toggle--on {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+}
+
+.ajustes-toggle-knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.ajustes-toggle--on .ajustes-toggle-knob {
+  transform: translateX(18px);
+  background: #fff;
+}
+
+@media (max-width: 600px) {
+  .rest-timer { flex-direction: column; align-items: flex-start; gap: 12px; }
+  .macro-goal-grid { grid-template-columns: 1fr; }
+  .league-chat { height: 360px; }
 }
