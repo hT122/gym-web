@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { collection, addDoc, getDocs, query, where, doc, updateDoc, deleteDoc } from 'firebase/firestore';
-import { db } from '../firebase/config';
 import { actualizarDespuesDeEntrenamiento, obtenerDatosHistoricos, obtenerPRsDetallados, recalcularPuntosTotales, recalcularStreakYFecha } from '../firebase/users';
 import { actualizarPuntosEnLigas, recalcularPuntosEnLigas } from '../firebase/leagues';
 import { guardarPlantilla } from '../firebase/templates';
+import {
+  obtenerHistorial,
+  guardarEntrenamiento,
+  actualizarEjerciciosEntrenamiento,
+  eliminarEntrenamiento as eliminarEntrenamientoFb,
+} from '../firebase/entrenamientos';
 import { calcularVolumenTotal, calcularPuntos } from '../utils/scoring';
 import WorkoutStarter from '../components/WorkoutStarter/WorkoutStarter';
 import WorkoutForm from '../components/WorkoutForm/WorkoutForm';
@@ -18,26 +22,28 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
   const [ejerciciosDelEntrenamiento, setEjerciciosDelEntrenamiento] = useState([]);
   const [historial, setHistorial] = useState([]);
   const [cargandoHistorial, setCargandoHistorial] = useState(true);
-  const [historialVisible, setHistorialVisible] = useState(15);
+  const [cargandoMas, setCargandoMas] = useState(false);
+  const [ultimoDoc, setUltimoDoc] = useState(null);
+  const [hayMas, setHayMas] = useState(false);
   const [prs, setPrs] = useState({});
   const [editingWorkoutId, setEditingWorkoutId] = useState(null);
   const [ejerciciosParaPlantilla, setEjerciciosParaPlantilla] = useState(null);
   const [guardando, setGuardando] = useState(false);
 
-  const cargarHistorial = async () => {
+  const cargarHistorial = async (cursor = null) => {
     if (!user) return;
-    setCargandoHistorial(true);
+    if (!cursor) setCargandoHistorial(true);
+    else setCargandoMas(true);
     try {
-      const q = query(collection(db, 'entrenamientos'), where('userId', '==', user.uid));
-      const querySnapshot = await getDocs(q);
-      const entrenamientos = [];
-      querySnapshot.forEach((doc) => entrenamientos.push({ id: doc.id, ...doc.data() }));
-      entrenamientos.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-      setHistorial(entrenamientos);
+      const resultado = await obtenerHistorial(user.uid, cursor);
+      setHistorial(prev => cursor ? [...prev, ...resultado.entrenamientos] : resultado.entrenamientos);
+      setUltimoDoc(resultado.ultimoDoc);
+      setHayMas(resultado.hayMas);
     } catch (error) {
       console.error('Error al cargar historial: ', error);
     } finally {
       setCargandoHistorial(false);
+      setCargandoMas(false);
     }
   };
 
@@ -129,10 +135,10 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
     setIsWorkoutStarted(true);
   };
 
-  const eliminarEntrenamiento = async (id) => {
+  const handleEliminarEntrenamiento = async (id) => {
     try {
-      await deleteDoc(doc(db, 'entrenamientos', id));
-      setHistorial((prev) => prev.filter((e) => e.id !== id));
+      await eliminarEntrenamientoFb(id);
+      setHistorial(prev => prev.filter(e => e.id !== id));
       await Promise.all([
         recalcularPuntosTotales(user.uid),
         recalcularStreakYFecha(user.uid),
@@ -164,22 +170,33 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
     setGuardando(true);
     try {
       if (editingWorkoutId) {
-        await updateDoc(doc(db, 'entrenamientos', editingWorkoutId), { ejercicios: ejerciciosFinales });
+        await actualizarEjerciciosEntrenamiento(editingWorkoutId, ejerciciosFinales);
+        setHistorial(prev => prev.map(e => e.id === editingWorkoutId ? { ...e, ejercicios: ejerciciosFinales } : e));
         setEditingWorkoutId(null);
         setSeries([{ peso: '', repes: '' }]);
         setEjercicio('Press de Banca');
         setEjerciciosDelEntrenamiento([]);
         setIsWorkoutStarted(false);
-        await Promise.all([cargarHistorial(), cargarPRs()]);
         toast.success('Entrenamiento actualizado');
+        cargarPRs().catch(err => console.error('Error actualizando PRs:', err));
       } else {
         const fecha = new Date().toISOString();
         const volumenTotal = calcularVolumenTotal(ejerciciosFinales);
-        const { prs, volumenAnterior } = await obtenerDatosHistoricos(user.uid);
+
+        // Fetch historical data for PR detection — fall back to empty if it fails
+        let histPRs = {};
+        let volumenAnterior = 0;
+        try {
+          const datos = await obtenerDatosHistoricos(user.uid);
+          histPRs = datos.prs;
+          volumenAnterior = datos.volumenAnterior;
+        } catch (err) {
+          console.error('Error al obtener historial previo:', err);
+        }
 
         const tuvoPR = ejerciciosFinales.some((ej) => {
-          const hist = prs[ej.nombre];
-          if (!hist) return false;
+          const hist = histPRs[ej.nombre];
+          if (!hist) return true;
           const maxPesoActual = Math.max(...ej.series.map((s) => s.peso));
           const volEj = ej.series.reduce((sum, s) => sum + s.peso * s.repes, 0);
           return maxPesoActual > hist.maxPeso || volEj > hist.maxVolumen;
@@ -192,7 +209,28 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
           volumenAnterior,
         });
 
-        await addDoc(collection(db, 'entrenamientos'), {
+        // Save the workout — this is the only step that justifies an error toast
+        let docRef;
+        try {
+          docRef = await guardarEntrenamiento({
+            userId: user.uid,
+            userName: user.displayName || userData?.displayName,
+            ejercicios: ejerciciosFinales,
+            fecha,
+            puntos: puntosGanados,
+            volumenTotal,
+            tuvoPR,
+          });
+        } catch (saveError) {
+          console.error('Error al guardar entrenamiento:', saveError);
+          toast.error('Hubo un error al guardar el entrenamiento');
+          setGuardando(false);
+          return;
+        }
+
+        // Workout is persisted — update UI immediately
+        setHistorial(prev => [{
+          id: docRef.id,
           userId: user.uid,
           userName: user.displayName || userData?.displayName,
           ejercicios: ejerciciosFinales,
@@ -200,17 +238,23 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
           puntos: puntosGanados,
           volumenTotal,
           tuvoPR,
-        });
-
-        await actualizarDespuesDeEntrenamiento(user.uid, puntosGanados, fecha);
-        await actualizarPuntosEnLigas(user.uid, puntosGanados);
-        await onRefrescarUsuario(user.uid);
+        }, ...prev]);
         setSeries([{ peso: '', repes: '' }]);
         setEjercicio('Press de Banca');
         setEjerciciosDelEntrenamiento([]);
         setIsWorkoutStarted(false);
-        await Promise.all([cargarHistorial(), cargarPRs()]);
+        setGuardando(false);
         toast.success(`¡Entrenamiento guardado! +${puntosGanados} puntos${tuvoPR ? ' — Nuevo récord!' : ''}`);
+
+        // Background: update streak, league points, and PRs — errors are silent
+        try {
+          await actualizarDespuesDeEntrenamiento(user.uid, puntosGanados, fecha);
+          await actualizarPuntosEnLigas(user.uid, puntosGanados);
+          await onRefrescarUsuario(user.uid);
+          await cargarPRs();
+        } catch (statsError) {
+          console.error('Error actualizando estadísticas:', statsError);
+        }
       }
     } catch (error) {
       console.error('Error al guardar: ', error);
@@ -244,20 +288,20 @@ export default function EntrenarPage({ user, userData, onRefrescarUsuario }) {
             onEditarEjercicioGuardado={editarEjercicioGuardado}
             onEliminarEjercicioGuardado={eliminarEjercicioGuardado}
             onFinalizar={finalizarEntrenamiento}
-                        guardando={guardando}
+            guardando={guardando}
             onGuardarPlantilla={handleGuardarPlantilla}
           />
         )}
       </div>
       <WorkoutHistorial
-        historial={historial.slice(0, historialVisible)}
-        totalHistorial={historial.length}
-        historialVisible={historialVisible}
-        onCargarMas={() => setHistorialVisible((v) => v + 15)}
+        historial={historial}
+        hayMas={hayMas}
+        cargandoMas={cargandoMas}
+        onCargarMas={() => cargarHistorial(ultimoDoc)}
         cargando={cargandoHistorial}
         prs={prs}
         onEditar={editarEntrenamiento}
-        onEliminar={eliminarEntrenamiento}
+        onEliminar={handleEliminarEntrenamiento}
       />
     </div>
   );

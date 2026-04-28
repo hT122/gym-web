@@ -53,10 +53,10 @@ service cloud.firestore {
 
     match /league_members/{memberId} {
       allow read: if estaAutenticado();
-      // Solo el propio usuario puede unirse o salir
       allow create: if estaAutenticado() && request.resource.data.userId == request.auth.uid;
       allow delete: if estaAutenticado() && resource.data.userId == request.auth.uid;
-      allow update: if false;
+      // Members can update their own record (points total)
+      allow update: if estaAutenticado() && resource.data.userId == request.auth.uid;
     }
 
     // ── Chat ─────────────────────────────────────────────────────────────────

@@ -84,7 +84,7 @@ function PRs({ prs }) {
 
 export default function WorkoutHistorial({
   historial, prs, onEditar, onEliminar,
-  cargando, totalHistorial, historialVisible, onCargarMas,
+  cargando, hayMas, cargandoMas, onCargarMas,
 }) {
   const [tab, setTab] = useState('historial');
   const [pendienteEliminarId, setPendienteEliminarId] = useState(null);
@@ -144,9 +144,9 @@ export default function WorkoutHistorial({
                 ))}
               </div>
             ))}
-            {historialVisible < totalHistorial && (
-              <button className="btn-secondary" onClick={onCargarMas} style={{ width: '100%' }}>
-                Cargar más ({totalHistorial - historialVisible} restantes)
+            {hayMas && (
+              <button className="btn-secondary" onClick={onCargarMas} disabled={cargandoMas} style={{ width: '100%' }}>
+                {cargandoMas ? 'Cargando...' : 'Cargar más'}
               </button>
             )}
           </div>
